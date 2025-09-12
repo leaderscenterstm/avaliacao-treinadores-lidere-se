@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Avaliação de Treinamentos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #219a52;
+        }
+        
+        .btn-pdf {
+            background-color: #e74c3c;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #c0392b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--light-gray);
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--light-gray);
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+        }
+        
+        .rating-item {
+            text-align: center;
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+        
+        .rating-slider {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        .rating-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .notification.success {
+            background-color: var(--success-color);
+        }
+        
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+        
+        .evaluation-card {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .evaluation-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 1.5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .rating-container {
+                flex-direction: column;
+            }
+            
+            .rating-item {
+                margin: 0.5rem 0;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-bottom: 0.25rem;
+                border-radius: 4px;
+            }
+        }
+        
+        .admin-only {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .user-info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page">
+        <div class="login-container">
+            <h2 style="text-align: center;">Acesso ao Sistema</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn-success" style="width: 100%;">Entrar</button>
+            </form>
+            
+            <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                <h4>Credenciais de teste:</h4>
+                <p><strong>Admin:</strong> admin / admin123</p>
+                <p><strong>Usuário:</strong> user / user123</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="app-container" class="hidden">
+        <header>
+            <h1>Sistema de Avaliação de Treinamentos</h1>
+            <div class="user-info">
+                <span id="user-display">Usuário: <span id="current-user"></span> (<span id="user-role"></span>)</span>
+                <button class="logout-btn" id="logout-btn">Sair</button>
+            </div>
+        </header>
+        
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active" data-tab="form">Nova Avaliação</div>
+                <div class="tab" data-tab="report">Relatório Semanal</div>
+                <div class="tab" data-tab="evaluations">Minhas Avaliações</div>
+                <div class="tab admin-only hidden" data-tab="dashboard">Dashboard</div>
+                <div class="tab admin-only hidden" data-tab="all-evaluations">Todas as Avaliações</div>
+            </div>
+            
+            <div id="form-tab" class="tab-content active">
+                <div class="card">
+                    <h2>Registro de Avaliação Diária</h2>
+                    <form id="evaluation-form">
+                        <div class="form-group">
+                            <label for="trainer-name">Nome do Treinador</label>
+                            <select id="trainer-name" required>
+                                <option value="">Selecione o treinador</option>
+                                <option value="Luma Mell">Luma Mell</option>
+                                <option value="Ian Cunha">Ian Cunha</option>
+                                <option value="Susej Cristo">Susej Cristo</option>
+                                <option value="Nathalie Benitah">Nathalie Benitah</option>
+                                <option value="Fellipe Figueira">Fellipe Figueira</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="axis">Eixo</label>
+                            <select id="axis" required>
+                                <option value="">Selecione o eixo</option>
+                                <option value="Inteligência Emocional">Inteligência Emocional</option>
+                                <option value="Liderança & Business">Liderança & Business</option>
+                                <option value="Inglês">Inglês</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Data</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shift">Turno</label>
+                            <select id="shift" required>
+                                <option value="">Selecione o turno</option>
+                                <option value="Manhã">Manhã</option>
+                                <option value="Tarde">Tarde</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="class">Turma</label>
+                            <select id="class" required>
+                                <option value="">Selecione a turma</option>
+                                <option value="Foundation Ter/Qui">Foundation Ter/Qui</option>
+                                <option value="Foundation Seg/Qua">Foundation Seg/Qua</option>
+                                <option value="Discovery Ter/Qui">Discovery Ter/Qui</option>
+                                <option value="Discovery Seg/Qua">Discovery Seg/Qua</option>
+                                <option value="Challenge Ter/Qui">Challenge Ter/Qui</option>
+                                <option value="Challenge Seg/Qua">Challenge Seg/Qua</option>
+                            </select>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Indicadores de Performance</h3>
+                            
+                            <div class="rating-container">
+                                <div class="rating-item">
+                                    <label for="participation">Participação</label>
+                                    <input type="range" id="participation" class="rating-slider" min="1" max="5" value="3">
+                                    <div class="rating-value" id="participation-value">3</div>
+                                </div>
+                                
+                                <div class="rating-item">
+                                    <label for="understanding">Compreensão</label>
+                                    <input type="range" id="understanding" class="rating-slider" min="1" max="5" value="3">
+                                    <div class="rating-value" id="understanding-value">3</div>
+                                </div>
+                                
+                                <div class="rating-item">
+                                    <label for="engagement">Engajamento</label>
+                                    <input type="range" id="engagement" class="rating-slider" min="1" max="5" value="3">
+                                    <div class="rating-value" id="engagement-value">3</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="observations">Observações</label>
+                                <textarea id="observations" rows="4" placeholder="Observações relevantes sobre a turma..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-success">Registrar Avaliação</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="report-tab" class="tab-content">
+                <div class="card">
+                    <h2>Relatório Semanal</h2>
+                    
+                    <div class="form-group">
+                        <label for="report-week">Selecione a semana:</label>
+                        <input type="week" id="report-week">
+                    </div>
+                    
+                    <button id="generate-report" class="btn-success">Gerar Relatório</button>
+                    
+                    <div id="report-results" class="hidden">
+                        <h3>Resultados da Semana</h3>
+                        <div id="report-content"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="evaluations-tab" class="tab-content">
+                <div class="card">
+                    <h2>Minhas Avaliações</h2>
+                    <div id="saved-evaluations">
+                        <p>Carregando avaliações...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="dashboard-tab" class="tab-content">
+                <div class="card">
+                    <h2>Dashboard de Métricas</h2>
+                    
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Total de Avaliações</h3>
+                            <div class="stat-value" id="total-evaluations">0</div>
+                            <div class="stat-label">Registros no sistema</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3>Média de Participação</h3>
+                            <div class="stat-value" id="avg-participation">0.0</div>
+                            <div class="stat-label">Escala de 1 a 5</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3>Média de Compreensão</h3>
+                            <div class="stat-value" id="avg-understanding">0.0</div>
+                            <div class="stat-label">Escala de 1 a 5</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3>Média de Engajamento</h3>
+                            <div class="stat-value" id="avg-engagement">0.0</div>
+                            <div class="stat-label">Escala de 1 a 5</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Desempenho por Eixo</h3>
+                        <div class="chart-container">
+                            <canvas id="axis-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Desempenho por Treinador</h3>
+                        <div class="chart-container">
+                            <canvas id="trainer-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="all-evaluations-tab" class="tab-content">
+                <div class="card">
+                    <h2>Todas as Avaliações</h2>
+                    <div class="form-group">
+                        <label for="search-evaluations">Buscar:</label>
+                        <input type="text" id="search-evaluations" placeholder="Digite para filtrar...">
+                    </div>
+                    <div id="all-evaluations-list">
+                        <p>Carregando todas as avaliações...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar o jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Dados de usuários (em um sistema real, isso viria de um backend seguro)
+        const users = {
+            'admin': { password: 'admin123', role: 'admin', name: 'Administrador' },
+            'user': { password: 'user123', role: 'user', name: 'Usuário Padrão' }
+        };
+        
+        let currentUser = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar armazenamento se não existir
+            if (!localStorage.getItem('evaluations')) {
+                localStorage.setItem('evaluations', JSON.stringify([]));
+            }
+            
+            // Configurar data atual como padrão
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            if (document.getElementById('date')) {
+                document.getElementById('date').value = formattedDate;
+            }
+            
+            // Configurar a semana atual como padrão
+            const year = today.getFullYear();
+            const weekNumber = getWeekNumber(today);
+            if (document.getElementById('report-week')) {
+                document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
+            }
+            
+            // Configurar login
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (users[username] && users[username].password === password) {
+                    currentUser = {
+                        username: username,
+                        role: users[username].role,
+                        name: users[username].name
+                    };
+                    
+                    // Salvar usuário atual no sessionStorage
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Mostrar aplicação
+                    document.getElementById('login-page').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    
+                    // Atualizar interface com informações do usuário
+                    document.getElementById('current-user').textContent = currentUser.name;
+                    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+                    
+                    // Mostrar/ocultar funcionalidades baseado no papel
+                    if (currentUser.role === 'admin') {
+                        document.querySelectorAll('.admin-only').forEach(el => {
+                            el.classList.remove('hidden');
+                        });
+                    }
+                    
+                    // Carregar dados iniciais
+                    loadUserEvaluations();
+                    if (currentUser.role === 'admin') {
+                        loadAllEvaluations();
+                        loadDashboardData();
+                    }
+                } else {
+                    alert('Usuário ou senha incorretos!');
+                }
+            });
+            
+            // Verificar se já está logado
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                document.getElementById('current-user').textContent = currentUser.name;
+                document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+                
+                if (currentUser.role === 'admin') {
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                    loadAllEvaluations();
+                    loadDashboardData();
+                }
+                
+                loadUserEvaluations();
+            }
+            
+            // Configurar logout
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                sessionStorage.removeItem('currentUser');
+                currentUser = null;
+                document.getElementById('login-page').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            });
+            
+            // Atualizar valores dos sliders
+            const sliders = document.querySelectorAll('.rating-slider');
+            sliders.forEach(slider => {
+                const valueDisplay = document.getElementById(`${slider.id}-value`);
+                if (valueDisplay) {
+                    valueDisplay.textContent = slider.value;
+                    
+                    slider.addEventListener('input', function() {
+                        valueDisplay.textContent = this.value;
+                    });
+                }
+            });
+            
+            // Alternar entre abas
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    if (this.classList.contains('hidden')) return;
+                    
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Ativar aba clicada
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar conteúdo correspondente
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                    
+                    // Carregar dados específicos da aba
+                    if (tabName === 'evaluations') {
+                        loadUserEvaluations();
+                    } else if (tabName === 'all-evaluations' && currentUser.role === 'admin') {
+                        loadAllEvaluations();
+                    } else if (tabName === 'dashboard' && currentUser.role === 'admin') {
+                        loadDashboardData();
+                    }
+                });
+            });
+            
+            // Processar formulário de avaliação
+            if (document.getElementById('evaluation-form')) {
+                document.getElementById('evaluation-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const evaluation = {
+                        trainer: document.getElementById('trainer-name').value,
+                        axis: document.getElementById('axis').value,
+                        date: document.getElementById('date').value,
+                        shift: document.getElementById('shift').value,
+                        class: document.getElementById('class').value,
+                        participation: document.getElementById('participation').value,
+                        understanding: document.getElementById('understanding').value,
+                        engagement: document.getElementById('engagement').value,
+                        observations: document.getElementById('observations').value,
+                        timestamp: new Date().toISOString(),
+                        user: currentUser.username
+                    };
+                    
+                    // Salvar avaliação
+                    const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                    evaluations.push(evaluation);
+                    localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                    
+                    // Gerar PDF
+                    generateEvaluationPDF(evaluation);
+                    
+                    // Limpar formulário
+                    this.reset();
+                    if (document.getElementById('date')) {
+                        document.getElementById('date').value = formattedDate;
+                    }
+                    
+                    // Resetar sliders
+                    sliders.forEach(slider => {
+                        slider.value = 3;
+                        const valueDisplay = document.getElementById(`${slider.id}-value`);
+                        if (valueDisplay) valueDisplay.textContent = '3';
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('Avaliação registrada com sucesso! PDF gerado.');
+                });
+            }
+            
+            // Gerar relatório
+            if (document.getElementById('generate-report')) {
+                document.getElementById('generate-report').addEventListener('click', function() {
+                    const weekValue = document.getElementById('report-week').value;
+                    if (!weekValue) {
+                        alert('Selecione uma semana para gerar o relatório.');
+                        return;
+                    }
+                    
+                    const [year, week] = weekValue.split('-W');
+                    const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                    
+                    // Filtrar avaliações da semana selecionada
+                    let weekEvaluations;
+                    if (currentUser.role === 'admin') {
+                        weekEvaluations = evaluations.filter(eval => {
+                            const evalDate = new Date(eval.date);
+                            const evalWeek = getWeekNumber(evalDate);
+                            const evalYear = evalDate.getFullYear();
+                            
+                            return evalYear == year && evalWeek == week;
+                        });
+                    } else {
+                        weekEvaluations = evaluations.filter(eval => {
+                            const evalDate = new Date(eval.date);
+                            const evalWeek = getWeekNumber(evalDate);
+                            const evalYear = evalDate.getFullYear();
+                            
+                            return evalYear == year && evalWeek == week && eval.user === currentUser.username;
+                        });
+                    }
+                    
+                    if (weekEvaluations.length === 0) {
+                        document.getElementById('report-results').classList.add('hidden');
+                        alert('Nenhuma avaliação encontrada para a semana selecionada.');
+                        return;
+                    }
+                    
+                    // Gerar relatório
+                    generateReport(weekEvaluations, weekValue);
+                    document.getElementById('report-results').classList.remove('hidden');
+                });
+            }
+            
+            // Configurar busca para todas as avaliações (admin)
+            if (document.getElementById('search-evaluations')) {
+                document.getElementById('search-evaluations').addEventListener('input', function() {
+                    loadAllEvaluations(this.value);
+                });
+            }
+            
+            // Função para obter número da semana
+            function getWeekNumber(date) {
+                const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+            }
+            
+            // Função para carregar avaliações do usuário
+            function loadUserEvaluations() {
+                if (!currentUser) return;
+                
+                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                const userEvaluations = evaluations.filter(eval => eval.user === currentUser.username);
+                
+                const container = document.getElementById('saved-evaluations');
+                if (!container) return;
+                
+                if (userEvaluations.length === 0) {
+                    container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                userEvaluations.forEach((evaluation, index) => {
+                    const evalElement = document.createElement('div');
+                    evalElement.className = 'evaluation-card card';
+                    evalElement.innerHTML = `
+                        <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
+                        <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
+                        <p><strong>Eixo:</strong> ${evaluation.axis}</p>
+                        <p><strong>Turno:</strong> ${evaluation.shift}</p>
+                        <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
+                        <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
+                        <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
+                        ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                        <div class="evaluation-actions">
+                            <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(evalElement);
+                });
+                
+                // Adicionar event listeners para os botões de PDF
+                container.querySelectorAll('.btn-pdf').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        generateEvaluationPDF(userEvaluations[index]);
+                    });
+                });
+            }
+            
+            // Função para carregar todas as avaliações (admin)
+            function loadAllEvaluations(searchTerm = '') {
+                if (!currentUser || currentUser.role !== 'admin') return;
+                
+                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                
+                const container = document.getElementById('all-evaluations-list');
+                if (!container) return;
+                
+                if (evaluations.length === 0) {
+                    container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
+                    return;
+                }
+                
+                // Filtrar avaliações se houver termo de busca
+                let filteredEvaluations = evaluations;
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    filteredEvaluations = evaluations.filter(eval => 
+                        eval.trainer.toLowerCase().includes(term) ||
+                        eval.axis.toLowerCase().includes(term) ||
+                        eval.class.toLowerCase().includes(term) ||
+                        eval.user.toLowerCase().includes(term)
+                    );
+                }
+                
+                container.innerHTML = '';
+                filteredEvaluations.forEach((evaluation, index) => {
+                    const evalElement = document.createElement('div');
+                    evalElement.className = 'evaluation-card card';
+                    evalElement.innerHTML = `
+                        <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
+                        <p><strong>Usuário:</strong> ${evaluation.user}</p>
+                        <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
+                        <p><strong>Eixo:</strong> ${evaluation.axis}</p>
+                        <p><strong>Turno:</strong> ${evaluation.shift}</p>
+                        <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
+                        <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
+                        <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
+                        ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                        <div class="evaluation-actions">
+                            <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(evalElement);
+                });
+                
+                // Adicionar event listeners para os botões de PDF
+                container.querySelectorAll('.btn-pdf').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        generateEvaluationPDF(filteredEvaluations[index]);
+                    });
+                });
+            }
+            
+            // Função para carregar dados do dashboard (admin)
+            function loadDashboardData() {
+                if (!currentUser || currentUser.role !== 'admin') return;
+                
+                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                
+                // Atualizar estatísticas
+                document.getElementById('total-evaluations').textContent = evaluations.length;
+                
+                // Calcular médias
+                if (evaluations.length > 0) {
+                    const totalParticipation = evaluations.reduce((sum, eval) => sum + parseInt(eval.participation), 0);
+                    const totalUnderstanding = evaluations.reduce((sum, eval) => sum + parseInt(eval.understanding), 0);
+                    const totalEngagement = evaluations.reduce((sum, eval) => sum + parseInt(eval.engagement), 0);
+                    
+                    document.getElementById('avg-participation').textContent = (totalParticipation / evaluations.length).toFixed(1);
+                    document.getElementById('avg-understanding').textContent = (totalUnderstanding / evaluations.length).toFixed(1);
+                    document.getElementById('avg-engagement').textContent = (totalEngagement / evaluations.length).toFixed(1);
+                }
+                
+                // Gerar gráficos
+                generateCharts(evaluations);
+            }
+            
+            // Função para gerar gráficos
+            function generateCharts(evaluations) {
+                // Dados para gráfico por eixo
+                const axes = {};
+                evaluations.forEach(eval => {
+                    if (!axes[eval.axis]) {
+                        axes[eval.axis] = { participation: 0, understanding: 0, engagement: 0, count: 0 };
+                    }
+                    axes[eval.axis].participation += parseInt(eval.participation);
+                    axes[eval.axis].understanding += parseInt(eval.understanding);
+                    axes[eval.axis].engagement += parseInt(eval.engagement);
+                    axes[eval.axis].count += 1;
+                });
+                
+                const axisLabels = Object.keys(axes);
+                const axisParticipationData = axisLabels.map(axis => axes[axis].participation / axes[axis].count);
+                const axisUnderstandingData = axisLabels.map(axis => axes[axis].understanding / axes[axis].count);
+                const axisEngagementData = axisLabels.map(axis => axes[axis].engagement / axes[axis].count);
+                
+                // Gráfico por eixo
+                const axisCtx = document.getElementById('axis-chart').getContext('2d');
+                if (axisCtx) {
+                    new Chart(axisCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: axisLabels,
+                            datasets: [
+                                {
+                                    label: 'Participação',
+                                    data: axisParticipationData,
+                                    backgroundColor: 'rgba(52, 152, 219, 0.7)'
+                                },
+                                {
+                                    label: 'Compreensão',
+                                    data: axisUnderstandingData,
+                                    backgroundColor: 'rgba(46, 204, 113, 0.7)'
+                                },
+                                {
+                                    label: 'Engajamento',
+                                    data: axisEngagementData,
+                                    backgroundColor: 'rgba(155, 89, 182, 0.7)'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 5
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Dados para gráfico por treinador
+                const trainers = {};
+                evaluations.forEach(eval => {
+                    if (!trainers[eval.trainer]) {
+                        trainers[eval.trainer] = { participation: 0, understanding: 0, engagement: 0, count: 0 };
+                    }
+                    trainers[eval.trainer].participation += parseInt(eval.participation);
+                    trainers[eval.trainer].understanding += parseInt(eval.understanding);
+                    trainers[eval.trainer].engagement += parseInt(eval.engagement);
+                    trainers[eval.trainer].count += 1;
+                });
+                
+                const trainerLabels = Object.keys(trainers);
+                const trainerAvgData = trainerLabels.map(trainer => 
+                    (trainers[trainer].participation + trainers[trainer].understanding + trainers[trainer].engagement) / (3 * trainers[trainer].count)
+                );
+                
+                // Gráfico por treinador
+                const trainerCtx = document.getElementById('trainer-chart').getContext('2d');
+                if (trainerCtx) {
+                    new Chart(trainerCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: trainerLabels,
+                            datasets: [{
+                                label: 'Desempenho Médio',
+                                data: trainerAvgData,
+                                backgroundColor: 'rgba(241, 196, 15, 0.7)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 5
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Função para gerar relatório
+            function generateReport(evaluations, weekValue) {
+                const reportContent = document.getElementById('report-content');
+                reportContent.innerHTML = '';
+                
+                // Agrupar avaliações por turma
+                const classes = {};
+                evaluations.forEach(eval => {
+                    if (!classes[eval.class]) {
+                        classes[eval.class] = [];
+                    }
+                    classes[eval.class].push(eval);
+                });
+                
+                // Calcular médias e criar relatório
+                for (const [className, classEvals] of Object.entries(classes)) {
+                    const classSection = document.createElement('div');
+                    classSection.className = 'card';
+                    
+                    // Cabeçalho da turma
+                    classSection.innerHTML = `<h3>Turma: ${className}</h3>`;
+                    
+                    // Tabela de avaliações
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Treinador</th>
+                                <th>Eixo</th>
+                                <th>Turno</th>
+                                <th>Participação</th>
+                                <th>Compreensão</th>
+                                <th>Engajamento</th>
+                                <th>Observações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    `;
+                    
+                    const tbody = table.querySelector('tbody');
+                    let totalPart = 0, totalUnd = 0, totalEng = 0;
+                    
+                    // Preencher tabela com avaliações
+                    classEvals.forEach(eval => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${formatDate(eval.date)}</td>
+                            <td>${eval.trainer}</td>
+                            <td>${eval.axis}</td>
+                            <td>${eval.shift}</td>
+                            <td>${eval.participation}</td>
+                            <td>${eval.understanding}</td>
+                            <td>${eval.engagement}</td>
+                            <td>${eval.observations || '-'}</td>
+                        `;
+                        tbody.appendChild(row);
+                        
+                        totalPart += parseInt(eval.participation);
+                        totalUnd += parseInt(eval.understanding);
+                        totalEng += parseInt(eval.engagement);
+                    });
+                    
+                    // Adicionar médias
+                    const avgRow = document.createElement('tr');
+                    avgRow.innerHTML = `
+                        <td colspan="4"><strong>Médias</strong></td>
+                        <td><strong>${(totalPart / classEvals.length).toFixed(1)}</strong></td>
+                        <td><strong>${(totalUnd / classEvals.length).toFixed(1)}</strong></td>
+                        <td><strong>${(totalEng / classEvals.length).toFixed(1)}</strong></td>
+                        <td></td>
+                    `;
+                    tbody.appendChild(avgRow);
+                    
+                    classSection.appendChild(table);
+                    reportContent.appendChild(classSection);
+                }
+            }
+            
+            // Função para gerar PDF de uma avaliação individual
+            function generateEvaluationPDF(evaluation) {
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Avaliação de Treinamento', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Sistema de Avaliação Semanal', 105, 28, { align: 'center' });
+                
+                // Linha separadora
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, 35, 190, 35);
+                
+                // Informações da avaliação
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Informações da Avaliação', 20, 45);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(80, 80, 80);
+                
+                let yPosition = 55;
+                
+                doc.text(`Data: ${formatDate(evaluation.date)}`, 20, yPosition);
+                yPosition += 8;
+                
+                doc.text(`Treinador: ${evaluation.trainer}`, 20, yPosition);
+                yPosition += 8;
+                
+                doc.text(`Eixo: ${evaluation.axis}`, 20, yPosition);
+                yPosition += 8;
+                
+                doc.text(`Turno: ${evaluation.shift}`, 20, yPosition);
+                yPosition += 8;
+                
+                doc.text(`Turma: ${evaluation.class}`, 20, yPosition);
+                yPosition += 15;
+                
+                // Indicadores de performance
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Indicadores de Performance', 20, yPosition);
+                yPosition += 10;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(80, 80, 80);
+                
+                // Participação
+                doc.text(`Participação: ${evaluation.participation}/5`, 20, yPosition);
+                doc.setFillColor(52, 152, 219);
+                doc.rect(70, yPosition - 4, evaluation.participation * 10, 8, 'F');
+                yPosition += 12;
+                
+                // Compreensão
+                doc.text(`Compreensão: ${evaluation.understanding}/5`, 20, yPosition);
+                doc.setFillColor(46, 204, 113);
+                doc.rect(70, yPosition - 4, evaluation.understanding * 10, 8, 'F');
+                yPosition += 12;
+                
+                // Engajamento
+                doc.text(`Engajamento: ${evaluation.engagement}/5`, 20, yPosition);
+                doc.setFillColor(155, 89, 182);
+                doc.rect(70, yPosition - 4, evaluation.engagement * 10, 8, 'F');
+                yPosition += 15;
+                
+                // Observações
+                if (evaluation.observations) {
+                    doc.setFontSize(16);
+                    doc.setTextColor(40, 40, 40);
+                    doc.text('Observações', 20, yPosition);
+                    yPosition += 10;
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(80, 80, 80);
+                    
+                    const splitObservations = doc.splitTextToSize(evaluation.observations, 170);
+                    doc.text(splitObservations, 20, yPosition);
+                    yPosition += splitObservations.length * 6 + 10;
+                }
+                
+                // Rodapé
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Documento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 280);
+                doc.text(`Usuário: ${evaluation.user}`, 170, 280, { align: 'right' });
+                
+                // Salvar o PDF
+                doc.save(`Avaliacao-${evaluation.class}-${formatDate(evaluation.date, 'file')}.pdf`);
+            }
+            
+            // Função para formatar data
+            function formatDate(dateString, format = 'display') {
+                const date = new Date(dateString);
+                if (format === 'file') {
+                    return date.toISOString().split('T')[0];
+                }
+                return date.toLocaleDateString('pt-BR');
+            }
+        });
+    </script>
+</body>
+</html>
