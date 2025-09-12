@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Avaliação de Treinamentos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -252,9 +251,18 @@
             font-size: 0.9rem;
         }
         
-        .chart-container {
-            height: 300px;
-            margin: 1.5rem 0;
+        .user-info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-only {
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -274,17 +282,11 @@
                 margin-bottom: 0.25rem;
                 border-radius: 4px;
             }
-        }
-        
-        .admin-only {
-            border-left: 4px solid var(--danger-color);
-        }
-        
-        .user-info {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
+            
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -317,19 +319,20 @@
     <div id="app-container" class="hidden">
         <header>
             <h1>Sistema de Avaliação de Treinamentos</h1>
-            <div class="user-info">
-                <span id="user-display">Usuário: <span id="current-user"></span> (<span id="user-role"></span>)</span>
-                <button class="logout-btn" id="logout-btn">Sair</button>
-            </div>
         </header>
+        
+        <div class="user-info">
+            <span id="user-display">Usuário: <span id="current-user"></span> (<span id="user-role"></span>)</span>
+            <button class="logout-btn" id="logout-btn">Sair</button>
+        </div>
         
         <div class="container">
             <div class="tabs">
                 <div class="tab active" data-tab="form">Nova Avaliação</div>
                 <div class="tab" data-tab="report">Relatório Semanal</div>
                 <div class="tab" data-tab="evaluations">Minhas Avaliações</div>
-                <div class="tab admin-only hidden" data-tab="dashboard">Dashboard</div>
-                <div class="tab admin-only hidden" data-tab="all-evaluations">Todas as Avaliações</div>
+                <div class="tab admin-only" data-tab="dashboard">Dashboard</div>
+                <div class="tab admin-only" data-tab="all-evaluations">Todas as Avaliações</div>
             </div>
             
             <div id="form-tab" class="tab-content active">
@@ -475,20 +478,6 @@
                             <div class="stat-label">Escala de 1 a 5</div>
                         </div>
                     </div>
-                    
-                    <div class="card">
-                        <h3>Desempenho por Eixo</h3>
-                        <div class="chart-container">
-                            <canvas id="axis-chart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Desempenho por Treinador</h3>
-                        <div class="chart-container">
-                            <canvas id="trainer-chart"></canvas>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -519,7 +508,8 @@
         
         let currentUser = null;
         
-        document.addEventListener('DOMContentLoaded', function() {
+        // Função para inicializar a aplicação
+        function initApp() {
             // Inicializar armazenamento se não existir
             if (!localStorage.getItem('evaluations')) {
                 localStorage.setItem('evaluations', JSON.stringify([]));
@@ -528,16 +518,23 @@
             // Configurar data atual como padrão
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
-            if (document.getElementById('date')) {
-                document.getElementById('date').value = formattedDate;
-            }
+            document.getElementById('date').value = formattedDate;
             
             // Configurar a semana atual como padrão
             const year = today.getFullYear();
             const weekNumber = getWeekNumber(today);
-            if (document.getElementById('report-week')) {
-                document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
-            }
+            document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
+            
+            // Atualizar valores dos sliders
+            const sliders = document.querySelectorAll('.rating-slider');
+            sliders.forEach(slider => {
+                const valueDisplay = document.getElementById(`${slider.id}-value`);
+                valueDisplay.textContent = slider.value;
+                
+                slider.addEventListener('input', function() {
+                    valueDisplay.textContent = this.value;
+                });
+            });
             
             // Configurar login
             document.getElementById('login-form').addEventListener('submit', function(e) {
@@ -567,7 +564,7 @@
                     // Mostrar/ocultar funcionalidades baseado no papel
                     if (currentUser.role === 'admin') {
                         document.querySelectorAll('.admin-only').forEach(el => {
-                            el.classList.remove('hidden');
+                            el.style.display = 'block';
                         });
                     }
                     
@@ -593,7 +590,7 @@
                 
                 if (currentUser.role === 'admin') {
                     document.querySelectorAll('.admin-only').forEach(el => {
-                        el.classList.remove('hidden');
+                        el.style.display = 'block';
                     });
                     loadAllEvaluations();
                     loadDashboardData();
@@ -610,24 +607,11 @@
                 document.getElementById('app-container').classList.add('hidden');
             });
             
-            // Atualizar valores dos sliders
-            const sliders = document.querySelectorAll('.rating-slider');
-            sliders.forEach(slider => {
-                const valueDisplay = document.getElementById(`${slider.id}-value`);
-                if (valueDisplay) {
-                    valueDisplay.textContent = slider.value;
-                    
-                    slider.addEventListener('input', function() {
-                        valueDisplay.textContent = this.value;
-                    });
-                }
-            });
-            
             // Alternar entre abas
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    if (this.classList.contains('hidden')) return;
+                    if (this.style.display === 'none') return;
                     
                     const tabName = this.getAttribute('data-tab');
                     
@@ -644,527 +628,415 @@
                     // Carregar dados específicos da aba
                     if (tabName === 'evaluations') {
                         loadUserEvaluations();
-                    } else if (tabName === 'all-evaluations' && currentUser.role === 'admin') {
+                    } else if (tabName === 'all-evaluations' && currentUser && currentUser.role === 'admin') {
                         loadAllEvaluations();
-                    } else if (tabName === 'dashboard' && currentUser.role === 'admin') {
+                    } else if (tabName === 'dashboard' && currentUser && currentUser.role === 'admin') {
                         loadDashboardData();
                     }
                 });
             });
             
             // Processar formulário de avaliação
-            if (document.getElementById('evaluation-form')) {
-                document.getElementById('evaluation-form').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const evaluation = {
-                        trainer: document.getElementById('trainer-name').value,
-                        axis: document.getElementById('axis').value,
-                        date: document.getElementById('date').value,
-                        shift: document.getElementById('shift').value,
-                        class: document.getElementById('class').value,
-                        participation: document.getElementById('participation').value,
-                        understanding: document.getElementById('understanding').value,
-                        engagement: document.getElementById('engagement').value,
-                        observations: document.getElementById('observations').value,
-                        timestamp: new Date().toISOString(),
-                        user: currentUser.username
-                    };
-                    
-                    // Salvar avaliação
-                    const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                    evaluations.push(evaluation);
-                    localStorage.setItem('evaluations', JSON.stringify(evaluations));
-                    
-                    // Gerar PDF
-                    generateEvaluationPDF(evaluation);
-                    
-                    // Limpar formulário
-                    this.reset();
-                    if (document.getElementById('date')) {
-                        document.getElementById('date').value = formattedDate;
-                    }
-                    
-                    // Resetar sliders
-                    sliders.forEach(slider => {
-                        slider.value = 3;
-                        const valueDisplay = document.getElementById(`${slider.id}-value`);
-                        if (valueDisplay) valueDisplay.textContent = '3';
-                    });
-                    
-                    // Mostrar mensagem de sucesso
-                    alert('Avaliação registrada com sucesso! PDF gerado.');
+            document.getElementById('evaluation-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const evaluation = {
+                    trainer: document.getElementById('trainer-name').value,
+                    axis: document.getElementById('axis').value,
+                    date: document.getElementById('date').value,
+                    shift: document.getElementById('shift').value,
+                    class: document.getElementById('class').value,
+                    participation: document.getElementById('participation').value,
+                    understanding: document.getElementById('understanding').value,
+                    engagement: document.getElementById('engagement').value,
+                    observations: document.getElementById('observations').value,
+                    timestamp: new Date().toISOString(),
+                    user: currentUser.username
+                };
+                
+                // Salvar avaliação
+                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                evaluations.push(evaluation);
+                localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                
+                // Gerar PDF
+                generateEvaluationPDF(evaluation);
+                
+                // Limpar formulário
+                this.reset();
+                document.getElementById('date').value = formattedDate;
+                
+                // Resetar sliders
+                sliders.forEach(slider => {
+                    slider.value = 3;
+                    document.getElementById(`${slider.id}-value`).textContent = '3';
                 });
-            }
+                
+                // Mostrar mensagem de sucesso
+                alert('Avaliação registrada com sucesso! PDF gerado.');
+            });
             
             // Gerar relatório
-            if (document.getElementById('generate-report')) {
-                document.getElementById('generate-report').addEventListener('click', function() {
-                    const weekValue = document.getElementById('report-week').value;
-                    if (!weekValue) {
-                        alert('Selecione uma semana para gerar o relatório.');
-                        return;
-                    }
-                    
-                    const [year, week] = weekValue.split('-W');
-                    const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                    
-                    // Filtrar avaliações da semana selecionada
-                    let weekEvaluations;
-                    if (currentUser.role === 'admin') {
-                        weekEvaluations = evaluations.filter(eval => {
-                            const evalDate = new Date(eval.date);
-                            const evalWeek = getWeekNumber(evalDate);
-                            const evalYear = evalDate.getFullYear();
-                            
-                            return evalYear == year && evalWeek == week;
-                        });
-                    } else {
-                        weekEvaluations = evaluations.filter(eval => {
-                            const evalDate = new Date(eval.date);
-                            const evalWeek = getWeekNumber(evalDate);
-                            const evalYear = evalDate.getFullYear();
-                            
-                            return evalYear == year && evalWeek == week && eval.user === currentUser.username;
-                        });
-                    }
-                    
-                    if (weekEvaluations.length === 0) {
-                        document.getElementById('report-results').classList.add('hidden');
-                        alert('Nenhuma avaliação encontrada para a semana selecionada.');
-                        return;
-                    }
-                    
-                    // Gerar relatório
-                    generateReport(weekEvaluations, weekValue);
-                    document.getElementById('report-results').classList.remove('hidden');
-                });
-            }
+            document.getElementById('generate-report').addEventListener('click', function() {
+                const weekValue = document.getElementById('report-week').value;
+                if (!weekValue) {
+                    alert('Selecione uma semana para gerar o relatório.');
+                    return;
+                }
+                
+                const [year, week] = weekValue.split('-W');
+                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+                
+                // Filtrar avaliações da semana selecionada
+                let weekEvaluations;
+                if (currentUser.role === 'admin') {
+                    weekEvaluations = evaluations.filter(eval => {
+                        const evalDate = new Date(eval.date);
+                        const evalWeek = getWeekNumber(evalDate);
+                        const evalYear = evalDate.getFullYear();
+                        
+                        return evalYear == year && evalWeek == week;
+                    });
+                } else {
+                    weekEvaluations = evaluations.filter(eval => {
+                        const evalDate = new Date(eval.date);
+                        const evalWeek = getWeekNumber(evalDate);
+                        const evalYear = evalDate.getFullYear();
+                        
+                        return evalYear == year && evalWeek == week && eval.user === currentUser.username;
+                    });
+                }
+                
+                if (weekEvaluations.length === 0) {
+                    document.getElementById('report-results').classList.add('hidden');
+                    alert('Nenhuma avaliação encontrada para a semana selecionada.');
+                    return;
+                }
+                
+                // Gerar relatório
+                generateReport(weekEvaluations, weekValue);
+                document.getElementById('report-results').classList.remove('hidden');
+            });
             
             // Configurar busca para todas as avaliações (admin)
-            if (document.getElementById('search-evaluations')) {
-                document.getElementById('search-evaluations').addEventListener('input', function() {
-                    loadAllEvaluations(this.value);
-                });
+            document.getElementById('search-evaluations').addEventListener('input', function() {
+                loadAllEvaluations(this.value);
+            });
+        }
+        
+        // Função para obter número da semana
+        function getWeekNumber(date) {
+            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+        }
+        
+        // Função para carregar avaliações do usuário
+        function loadUserEvaluations() {
+            if (!currentUser) return;
+            
+            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+            const userEvaluations = evaluations.filter(eval => eval.user === currentUser.username);
+            
+            const container = document.getElementById('saved-evaluations');
+            
+            if (userEvaluations.length === 0) {
+                container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
+                return;
             }
             
-            // Função para obter número da semana
-            function getWeekNumber(date) {
-                const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-                return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+            container.innerHTML = '';
+            userEvaluations.forEach((evaluation, index) => {
+                const evalElement = document.createElement('div');
+                evalElement.className = 'evaluation-card card';
+                evalElement.innerHTML = `
+                    <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
+                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
+                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
+                    <p><strong>Turno:</strong> ${evaluation.shift}</p>
+                    <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
+                    <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
+                    <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
+                    ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                    <div class="evaluation-actions">
+                        <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
+                    </div>
+                `;
+                
+                container.appendChild(evalElement);
+            });
+            
+            // Adicionar event listeners para os botões de PDF
+            container.querySelectorAll('.btn-pdf').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    generateEvaluationPDF(userEvaluations[index]);
+                });
+            });
+        }
+        
+        // Função para carregar todas as avaliações (admin)
+        function loadAllEvaluations(searchTerm = '') {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            
+            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+            
+            const container = document.getElementById('all-evaluations-list');
+            
+            if (evaluations.length === 0) {
+                container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
+                return;
             }
             
-            // Função para carregar avaliações do usuário
-            function loadUserEvaluations() {
-                if (!currentUser) return;
-                
-                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                const userEvaluations = evaluations.filter(eval => eval.user === currentUser.username);
-                
-                const container = document.getElementById('saved-evaluations');
-                if (!container) return;
-                
-                if (userEvaluations.length === 0) {
-                    container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                userEvaluations.forEach((evaluation, index) => {
-                    const evalElement = document.createElement('div');
-                    evalElement.className = 'evaluation-card card';
-                    evalElement.innerHTML = `
-                        <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
-                        <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                        <p><strong>Eixo:</strong> ${evaluation.axis}</p>
-                        <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                        <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
-                        <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
-                        <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
-                        ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
-                        <div class="evaluation-actions">
-                            <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
-                        </div>
-                    `;
-                    
-                    container.appendChild(evalElement);
-                });
-                
-                // Adicionar event listeners para os botões de PDF
-                container.querySelectorAll('.btn-pdf').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        generateEvaluationPDF(userEvaluations[index]);
-                    });
-                });
-            }
-            
-            // Função para carregar todas as avaliações (admin)
-            function loadAllEvaluations(searchTerm = '') {
-                if (!currentUser || currentUser.role !== 'admin') return;
-                
-                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                
-                const container = document.getElementById('all-evaluations-list');
-                if (!container) return;
-                
-                if (evaluations.length === 0) {
-                    container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
-                    return;
-                }
-                
-                // Filtrar avaliações se houver termo de busca
-                let filteredEvaluations = evaluations;
-                if (searchTerm) {
-                    const term = searchTerm.toLowerCase();
-                    filteredEvaluations = evaluations.filter(eval => 
-                        eval.trainer.toLowerCase().includes(term) ||
-                        eval.axis.toLowerCase().includes(term) ||
-                        eval.class.toLowerCase().includes(term) ||
-                        eval.user.toLowerCase().includes(term)
-                    );
-                }
-                
-                container.innerHTML = '';
-                filteredEvaluations.forEach((evaluation, index) => {
-                    const evalElement = document.createElement('div');
-                    evalElement.className = 'evaluation-card card';
-                    evalElement.innerHTML = `
-                        <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
-                        <p><strong>Usuário:</strong> ${evaluation.user}</p>
-                        <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                        <p><strong>Eixo:</strong> ${evaluation.axis}</p>
-                        <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                        <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
-                        <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
-                        <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
-                        ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
-                        <div class="evaluation-actions">
-                            <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
-                        </div>
-                    `;
-                    
-                    container.appendChild(evalElement);
-                });
-                
-                // Adicionar event listeners para os botões de PDF
-                container.querySelectorAll('.btn-pdf').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        generateEvaluationPDF(filteredEvaluations[index]);
-                    });
-                });
-            }
-            
-            // Função para carregar dados do dashboard (admin)
-            function loadDashboardData() {
-                if (!currentUser || currentUser.role !== 'admin') return;
-                
-                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                
-                // Atualizar estatísticas
-                document.getElementById('total-evaluations').textContent = evaluations.length;
-                
-                // Calcular médias
-                if (evaluations.length > 0) {
-                    const totalParticipation = evaluations.reduce((sum, eval) => sum + parseInt(eval.participation), 0);
-                    const totalUnderstanding = evaluations.reduce((sum, eval) => sum + parseInt(eval.understanding), 0);
-                    const totalEngagement = evaluations.reduce((sum, eval) => sum + parseInt(eval.engagement), 0);
-                    
-                    document.getElementById('avg-participation').textContent = (totalParticipation / evaluations.length).toFixed(1);
-                    document.getElementById('avg-understanding').textContent = (totalUnderstanding / evaluations.length).toFixed(1);
-                    document.getElementById('avg-engagement').textContent = (totalEngagement / evaluations.length).toFixed(1);
-                }
-                
-                // Gerar gráficos
-                generateCharts(evaluations);
-            }
-            
-            // Função para gerar gráficos
-            function generateCharts(evaluations) {
-                // Dados para gráfico por eixo
-                const axes = {};
-                evaluations.forEach(eval => {
-                    if (!axes[eval.axis]) {
-                        axes[eval.axis] = { participation: 0, understanding: 0, engagement: 0, count: 0 };
-                    }
-                    axes[eval.axis].participation += parseInt(eval.participation);
-                    axes[eval.axis].understanding += parseInt(eval.understanding);
-                    axes[eval.axis].engagement += parseInt(eval.engagement);
-                    axes[eval.axis].count += 1;
-                });
-                
-                const axisLabels = Object.keys(axes);
-                const axisParticipationData = axisLabels.map(axis => axes[axis].participation / axes[axis].count);
-                const axisUnderstandingData = axisLabels.map(axis => axes[axis].understanding / axes[axis].count);
-                const axisEngagementData = axisLabels.map(axis => axes[axis].engagement / axes[axis].count);
-                
-                // Gráfico por eixo
-                const axisCtx = document.getElementById('axis-chart').getContext('2d');
-                if (axisCtx) {
-                    new Chart(axisCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: axisLabels,
-                            datasets: [
-                                {
-                                    label: 'Participação',
-                                    data: axisParticipationData,
-                                    backgroundColor: 'rgba(52, 152, 219, 0.7)'
-                                },
-                                {
-                                    label: 'Compreensão',
-                                    data: axisUnderstandingData,
-                                    backgroundColor: 'rgba(46, 204, 113, 0.7)'
-                                },
-                                {
-                                    label: 'Engajamento',
-                                    data: axisEngagementData,
-                                    backgroundColor: 'rgba(155, 89, 182, 0.7)'
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 5
-                                }
-                            }
-                        }
-                    });
-                }
-                
-                // Dados para gráfico por treinador
-                const trainers = {};
-                evaluations.forEach(eval => {
-                    if (!trainers[eval.trainer]) {
-                        trainers[eval.trainer] = { participation: 0, understanding: 0, engagement: 0, count: 0 };
-                    }
-                    trainers[eval.trainer].participation += parseInt(eval.participation);
-                    trainers[eval.trainer].understanding += parseInt(eval.understanding);
-                    trainers[eval.trainer].engagement += parseInt(eval.engagement);
-                    trainers[eval.trainer].count += 1;
-                });
-                
-                const trainerLabels = Object.keys(trainers);
-                const trainerAvgData = trainerLabels.map(trainer => 
-                    (trainers[trainer].participation + trainers[trainer].understanding + trainers[trainer].engagement) / (3 * trainers[trainer].count)
+            // Filtrar avaliações se houver termo de busca
+            let filteredEvaluations = evaluations;
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredEvaluations = evaluations.filter(eval => 
+                    eval.trainer.toLowerCase().includes(term) ||
+                    eval.axis.toLowerCase().includes(term) ||
+                    eval.class.toLowerCase().includes(term) ||
+                    eval.user.toLowerCase().includes(term)
                 );
-                
-                // Gráfico por treinador
-                const trainerCtx = document.getElementById('trainer-chart').getContext('2d');
-                if (trainerCtx) {
-                    new Chart(trainerCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: trainerLabels,
-                            datasets: [{
-                                label: 'Desempenho Médio',
-                                data: trainerAvgData,
-                                backgroundColor: 'rgba(241, 196, 15, 0.7)'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 5
-                                }
-                            }
-                        }
-                    });
-                }
             }
             
-            // Função para gerar relatório
-            function generateReport(evaluations, weekValue) {
-                const reportContent = document.getElementById('report-content');
-                reportContent.innerHTML = '';
+            container.innerHTML = '';
+            filteredEvaluations.forEach((evaluation, index) => {
+                const evalElement = document.createElement('div');
+                evalElement.className = 'evaluation-card card';
+                evalElement.innerHTML = `
+                    <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
+                    <p><strong>Usuário:</strong> ${evaluation.user}</p>
+                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
+                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
+                    <p><strong>Turno:</strong> ${evaluation.shift}</p>
+                    <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
+                    <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
+                    <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
+                    ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                    <div class="evaluation-actions">
+                        <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
+                    </div>
+                `;
                 
-                // Agrupar avaliações por turma
-                const classes = {};
-                evaluations.forEach(eval => {
-                    if (!classes[eval.class]) {
-                        classes[eval.class] = [];
-                    }
-                    classes[eval.class].push(eval);
+                container.appendChild(evalElement);
+            });
+            
+            // Adicionar event listeners para os botões de PDF
+            container.querySelectorAll('.btn-pdf').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    generateEvaluationPDF(filteredEvaluations[index]);
+                });
+            });
+        }
+        
+        // Função para carregar dados do dashboard (admin)
+        function loadDashboardData() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            
+            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
+            
+            // Atualizar estatísticas
+            document.getElementById('total-evaluations').textContent = evaluations.length;
+            
+            // Calcular médias
+            if (evaluations.length > 0) {
+                const totalParticipation = evaluations.reduce((sum, eval) => sum + parseInt(eval.participation), 0);
+                const totalUnderstanding = evaluations.reduce((sum, eval) => sum + parseInt(eval.understanding), 0);
+                const totalEngagement = evaluations.reduce((sum, eval) => sum + parseInt(eval.engagement), 0);
+                
+                document.getElementById('avg-participation').textContent = (totalParticipation / evaluations.length).toFixed(1);
+                document.getElementById('avg-understanding').textContent = (totalUnderstanding / evaluations.length).toFixed(1);
+                document.getElementById('avg-engagement').textContent = (totalEngagement / evaluations.length).toFixed(1);
+            }
+        }
+        
+        // Função para gerar relatório
+        function generateReport(evaluations, weekValue) {
+            const reportContent = document.getElementById('report-content');
+            reportContent.innerHTML = '';
+            
+            // Agrupar avaliações por turma
+            const classes = {};
+            evaluations.forEach(eval => {
+                if (!classes[eval.class]) {
+                    classes[eval.class] = [];
+                }
+                classes[eval.class].push(eval);
+            });
+            
+            // Calcular médias e criar relatório
+            for (const [className, classEvals] of Object.entries(classes)) {
+                const classSection = document.createElement('div');
+                classSection.className = 'card';
+                
+                // Cabeçalho da turma
+                classSection.innerHTML = `<h3>Turma: ${className}</h3>`;
+                
+                // Tabela de avaliações
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Treinador</th>
+                            <th>Eixo</th>
+                            <th>Turno</th>
+                            <th>Participação</th>
+                            <th>Compreensão</th>
+                            <th>Engajamento</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                `;
+                
+                const tbody = table.querySelector('tbody');
+                let totalPart = 0, totalUnd = 0, totalEng = 0;
+                
+                // Preencher tabela com avaliações
+                classEvals.forEach(eval => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatDate(eval.date)}</td>
+                        <td>${eval.trainer}</td>
+                        <td>${eval.axis}</td>
+                        <td>${eval.shift}</td>
+                        <td>${eval.participation}</td>
+                        <td>${eval.understanding}</td>
+                        <td>${eval.engagement}</td>
+                        <td>${eval.observations || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                    
+                    totalPart += parseInt(eval.participation);
+                    totalUnd += parseInt(eval.understanding);
+                    totalEng += parseInt(eval.engagement);
                 });
                 
-                // Calcular médias e criar relatório
-                for (const [className, classEvals] of Object.entries(classes)) {
-                    const classSection = document.createElement('div');
-                    classSection.className = 'card';
-                    
-                    // Cabeçalho da turma
-                    classSection.innerHTML = `<h3>Turma: ${className}</h3>`;
-                    
-                    // Tabela de avaliações
-                    const table = document.createElement('table');
-                    table.innerHTML = `
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Treinador</th>
-                                <th>Eixo</th>
-                                <th>Turno</th>
-                                <th>Participação</th>
-                                <th>Compreensão</th>
-                                <th>Engajamento</th>
-                                <th>Observações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    `;
-                    
-                    const tbody = table.querySelector('tbody');
-                    let totalPart = 0, totalUnd = 0, totalEng = 0;
-                    
-                    // Preencher tabela com avaliações
-                    classEvals.forEach(eval => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${formatDate(eval.date)}</td>
-                            <td>${eval.trainer}</td>
-                            <td>${eval.axis}</td>
-                            <td>${eval.shift}</td>
-                            <td>${eval.participation}</td>
-                            <td>${eval.understanding}</td>
-                            <td>${eval.engagement}</td>
-                            <td>${eval.observations || '-'}</td>
-                        `;
-                        tbody.appendChild(row);
-                        
-                        totalPart += parseInt(eval.participation);
-                        totalUnd += parseInt(eval.understanding);
-                        totalEng += parseInt(eval.engagement);
-                    });
-                    
-                    // Adicionar médias
-                    const avgRow = document.createElement('tr');
-                    avgRow.innerHTML = `
-                        <td colspan="4"><strong>Médias</strong></td>
-                        <td><strong>${(totalPart / classEvals.length).toFixed(1)}</strong></td>
-                        <td><strong>${(totalUnd / classEvals.length).toFixed(1)}</strong></td>
-                        <td><strong>${(totalEng / classEvals.length).toFixed(1)}</strong></td>
-                        <td></td>
-                    `;
-                    tbody.appendChild(avgRow);
-                    
-                    classSection.appendChild(table);
-                    reportContent.appendChild(classSection);
-                }
+                // Adicionar médias
+                const avgRow = document.createElement('tr');
+                avgRow.innerHTML = `
+                    <td colspan="4"><strong>Médias</strong></td>
+                    <td><strong>${(totalPart / classEvals.length).toFixed(1)}</strong></td>
+                    <td><strong>${(totalUnd / classEvals.length).toFixed(1)}</strong></td>
+                    <td><strong>${(totalEng / classEvals.length).toFixed(1)}</strong></td>
+                    <td></td>
+                `;
+                tbody.appendChild(avgRow);
+                
+                classSection.appendChild(table);
+                reportContent.appendChild(classSection);
             }
+        }
+        
+        // Função para gerar PDF de uma avaliação individual
+        function generateEvaluationPDF(evaluation) {
+            const doc = new jsPDF();
             
-            // Função para gerar PDF de uma avaliação individual
-            function generateEvaluationPDF(evaluation) {
-                const doc = new jsPDF();
-                
-                // Cabeçalho
-                doc.setFontSize(20);
-                doc.setTextColor(40, 40, 40);
-                doc.text('Avaliação de Treinamento', 105, 20, { align: 'center' });
-                
-                doc.setFontSize(12);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Sistema de Avaliação Semanal', 105, 28, { align: 'center' });
-                
-                // Linha separadora
-                doc.setDrawColor(200, 200, 200);
-                doc.line(20, 35, 190, 35);
-                
-                // Informações da avaliação
+            // Cabeçalho
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Avaliação de Treinamento', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Sistema de Avaliação Semanal', 105, 28, { align: 'center' });
+            
+            // Linha separadora
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, 35, 190, 35);
+            
+            // Informações da avaliação
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Informações da Avaliação', 20, 45);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(80, 80, 80);
+            
+            let yPosition = 55;
+            
+            doc.text(`Data: ${formatDate(evaluation.date)}`, 20, yPosition);
+            yPosition += 8;
+            
+            doc.text(`Treinador: ${evaluation.trainer}`, 20, yPosition);
+            yPosition += 8;
+            
+            doc.text(`Eixo: ${evaluation.axis}`, 20, yPosition);
+            yPosition += 8;
+            
+            doc.text(`Turno: ${evaluation.shift}`, 20, yPosition);
+            yPosition += 8;
+            
+            doc.text(`Turma: ${evaluation.class}`, 20, yPosition);
+            yPosition += 15;
+            
+            // Indicadores de performance
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Indicadores de Performance', 20, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(80, 80, 80);
+            
+            // Participação
+            doc.text(`Participação: ${evaluation.participation}/5`, 20, yPosition);
+            doc.setFillColor(52, 152, 219);
+            doc.rect(70, yPosition - 4, evaluation.participation * 10, 8, 'F');
+            yPosition += 12;
+            
+            // Compreensão
+            doc.text(`Compreensão: ${evaluation.understanding}/5`, 20, yPosition);
+            doc.setFillColor(46, 204, 113);
+            doc.rect(70, yPosition - 4, evaluation.understanding * 10, 8, 'F');
+            yPosition += 12;
+            
+            // Engajamento
+            doc.text(`Engajamento: ${evaluation.engagement}/5`, 20, yPosition);
+            doc.setFillColor(155, 89, 182);
+            doc.rect(70, yPosition - 4, evaluation.engagement * 10, 8, 'F');
+            yPosition += 15;
+            
+            // Observações
+            if (evaluation.observations) {
                 doc.setFontSize(16);
                 doc.setTextColor(40, 40, 40);
-                doc.text('Informações da Avaliação', 20, 45);
-                
-                doc.setFontSize(12);
-                doc.setTextColor(80, 80, 80);
-                
-                let yPosition = 55;
-                
-                doc.text(`Data: ${formatDate(evaluation.date)}`, 20, yPosition);
-                yPosition += 8;
-                
-                doc.text(`Treinador: ${evaluation.trainer}`, 20, yPosition);
-                yPosition += 8;
-                
-                doc.text(`Eixo: ${evaluation.axis}`, 20, yPosition);
-                yPosition += 8;
-                
-                doc.text(`Turno: ${evaluation.shift}`, 20, yPosition);
-                yPosition += 8;
-                
-                doc.text(`Turma: ${evaluation.class}`, 20, yPosition);
-                yPosition += 15;
-                
-                // Indicadores de performance
-                doc.setFontSize(16);
-                doc.setTextColor(40, 40, 40);
-                doc.text('Indicadores de Performance', 20, yPosition);
+                doc.text('Observações', 20, yPosition);
                 yPosition += 10;
                 
                 doc.setFontSize(12);
                 doc.setTextColor(80, 80, 80);
                 
-                // Participação
-                doc.text(`Participação: ${evaluation.participation}/5`, 20, yPosition);
-                doc.setFillColor(52, 152, 219);
-                doc.rect(70, yPosition - 4, evaluation.participation * 10, 8, 'F');
-                yPosition += 12;
-                
-                // Compreensão
-                doc.text(`Compreensão: ${evaluation.understanding}/5`, 20, yPosition);
-                doc.setFillColor(46, 204, 113);
-                doc.rect(70, yPosition - 4, evaluation.understanding * 10, 8, 'F');
-                yPosition += 12;
-                
-                // Engajamento
-                doc.text(`Engajamento: ${evaluation.engagement}/5`, 20, yPosition);
-                doc.setFillColor(155, 89, 182);
-                doc.rect(70, yPosition - 4, evaluation.engagement * 10, 8, 'F');
-                yPosition += 15;
-                
-                // Observações
-                if (evaluation.observations) {
-                    doc.setFontSize(16);
-                    doc.setTextColor(40, 40, 40);
-                    doc.text('Observações', 20, yPosition);
-                    yPosition += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setTextColor(80, 80, 80);
-                    
-                    const splitObservations = doc.splitTextToSize(evaluation.observations, 170);
-                    doc.text(splitObservations, 20, yPosition);
-                    yPosition += splitObservations.length * 6 + 10;
-                }
-                
-                // Rodapé
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text(`Documento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 280);
-                doc.text(`Usuário: ${evaluation.user}`, 170, 280, { align: 'right' });
-                
-                // Salvar o PDF
-                doc.save(`Avaliacao-${evaluation.class}-${formatDate(evaluation.date, 'file')}.pdf`);
+                const splitObservations = doc.splitTextToSize(evaluation.observations, 170);
+                doc.text(splitObservations, 20, yPosition);
+                yPosition += splitObservations.length * 6 + 10;
             }
             
-            // Função para formatar data
-            function formatDate(dateString, format = 'display') {
-                const date = new Date(dateString);
-                if (format === 'file') {
-                    return date.toISOString().split('T')[0];
-                }
-                return date.toLocaleDateString('pt-BR');
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Documento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 280);
+            doc.text(`Usuário: ${evaluation.user}`, 170, 280, { align: 'right' });
+            
+            // Salvar o PDF
+            doc.save(`Avaliacao-${evaluation.class}-${formatDate(evaluation.date, 'file')}.pdf`);
+        }
+        
+        // Função para formatar data
+        function formatDate(dateString, format = 'display') {
+            const date = new Date(dateString);
+            if (format === 'file') {
+                return date.toISOString().split('T')[0];
             }
-        });
+            return date.toLocaleDateString('pt-BR');
+        }
+        
+        // Inicializar a aplicação quando o documento estiver carregado
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
