@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Avaliação de Treinamentos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://smtpjs.com/v3/smtp.js"></script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -256,8 +255,8 @@
         }
         
         .login-container {
-            max-width: 400px;
-            margin: 100px auto;
+            max-width: 600px;
+            margin: 50px auto;
             padding: 2rem;
             background: white;
             border-radius: 5px;
@@ -305,6 +304,59 @@
             color: white;
         }
         
+        .user-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .user-button {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .user-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .coord-button {
+            background-color: var(--secondary-color);
+        }
+        
+        .coord-button:hover {
+            background-color: #1e2a36;
+        }
+        
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .password-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -328,6 +380,10 @@
             .criteria-item {
                 padding: 1rem;
             }
+            
+            .user-buttons {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -335,28 +391,29 @@
     <div id="login-page">
         <div class="login-container">
             <h2 style="text-align: center;">Acesso ao Sistema</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">Usuário</label>
-                    <input type="text" id="username" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" required>
-                </div>
-                
-                <button type="submit" class="btn-success" style="width: 100%;">Entrar</button>
-            </form>
+            <p style="text-align: center; margin-bottom: 20px;">Selecione seu perfil para acessar o sistema</p>
             
-            <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
-                <h4>Credenciais de teste:</h4>
-                <p><strong>Admin:</strong> admin / admin123</p>
-                <p><strong>Luma Mell:</strong> lumamell / luma123</p>
-                <p><strong>Ian Cunha:</strong> iancunha / ian123</p>
-                <p><strong>Susej Cristo:</strong> susejcristo / susej123</p>
-                <p><strong>Nathalie Benitah:</strong> nathaliebenitah / nathalie123</p>
-                <p><strong>Fellipe Figueira:</strong> fellipefigueira / fellipe123</p>
+            <div class="user-buttons">
+                <button class="user-button" data-user="Luma Mell" data-role="trainer">Luma Mell</button>
+                <button class="user-button" data-user="Ian Cunha" data-role="trainer">Ian Cunha</button>
+                <button class="user-button" data-user="Susej Cristo" data-role="trainer">Susej Cristo</button>
+                <button class="user-button" data-user="Nathalie Benitah" data-role="trainer">Nathalie Benitah</button>
+                <button class="user-button" data-user="Fellipe Figueira" data-role="trainer">Fellipe Figueira</button>
+                <button class="user-button coord-button" data-user="Coordenação" data-role="admin">Coordenação</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="password-modal" class="password-modal hidden">
+        <div class="password-modal-content">
+            <h3>Acesso da Coordenação</h3>
+            <p>Digite a senha de administrador para continuar:</p>
+            <div class="form-group">
+                <input type="password" id="admin-password" placeholder="Senha de administrador">
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <button id="cancel-password" class="btn-danger">Cancelar</button>
+                <button id="submit-password" class="btn-success">Acessar</button>
             </div>
         </div>
     </div>
@@ -525,45 +582,8 @@
         // Inicializar o jsPDF
         const { jsPDF } = window.jspdf;
         
-        // Dados de usuários (em um sistema real, isso viria de um backend seguro)
-        const users = {
-            'admin': { 
-                password: 'admin123', 
-                role: 'admin', 
-                name: 'Administrador',
-                email: 'admin@leaderscenter.com'
-            },
-            'lumamell': { 
-                password: 'luma123', 
-                role: 'trainer', 
-                name: 'Luma Mell',
-                email: 'luma@leaderscenter.com'
-            },
-            'iancunha': { 
-                password: 'ian123', 
-                role: 'trainer', 
-                name: 'Ian Cunha',
-                email: 'ian@leaderscenter.com'
-            },
-            'susejcristo': { 
-                password: 'susej123', 
-                role: 'trainer', 
-                name: 'Susej Cristo',
-                email: 'susej@leaderscenter.com'
-            },
-            'nathaliebenitah': { 
-                password: 'nathalie123', 
-                role: 'trainer', 
-                name: 'Nathalie Benitah',
-                email: 'nathalie@leaderscenter.com'
-            },
-            'fellipefigueira': { 
-                password: 'fellipe123', 
-                role: 'trainer', 
-                name: 'Fellipe Figueira',
-                email: 'fellipe@leaderscenter.com'
-            }
-        };
+        // Senha de administrador
+        const ADMIN_PASSWORD = 'admin123';
         
         // Critérios de performance por tipo de turma
         const performanceCriteria = {
@@ -635,7 +655,7 @@
                 {
                     id: 'application',
                     title: 'Aplicação do Aprendizado',
-                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?'
+                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentaciones como grupo?'
                 },
                 {
                     id: 'cooperation',
@@ -658,7 +678,7 @@
             const timestamp = new Date().toISOString();
             const logEntry = {
                 timestamp,
-                user: currentUser ? currentUser.username : 'unknown',
+                user: currentUser ? currentUser.name : 'unknown',
                 action,
                 details
             };
@@ -668,37 +688,7 @@
             logs.push(logEntry);
             localStorage.setItem('systemLogs', JSON.stringify(logs));
             
-            // Gerar arquivo de log e enviar por e-mail
-            generateLogFileAndSendEmail(logEntry);
-            
             return logEntry;
-        }
-        
-        // Função para gerar arquivo de log e enviar por e-mail
-        function generateLogFileAndSendEmail(logEntry) {
-            try {
-                // Formatar o log como texto
-                const logText = `TIMESTAMP: ${logEntry.timestamp}\nUSUÁRIO: ${logEntry.user}\nAÇÃO: ${logEntry.action}\nDETALHES: ${logEntry.details}\n\n`;
-                
-                // Em um ambiente real, aqui você enviaria o log por e-mail
-                // Como estamos em um ambiente de demonstração, vamos simular esse comportamento
-                console.log("Log registrado e enviado por e-mail (simulado):", logText);
-                
-                // Simular envio de e-mail (em produção, use uma API real)
-                if (typeof Email !== 'undefined') {
-                    Email.send({
-                        SecureToken: "your-token-here", // Em produção, use um token seguro
-                        To: 'leaderscenter.stm@gmail.com',
-                        From: 'system@leaderscenter.com',
-                        Subject: `Log do Sistema - ${new Date().toLocaleDateString('pt-BR')}`,
-                        Body: logText
-                    }).then(
-                        message => console.log("E-mail enviado com sucesso")
-                    );
-                }
-            } catch (error) {
-                console.error("Erro ao enviar log por e-mail:", error);
-            }
         }
         
         // Função para inicializar a aplicação
@@ -724,61 +714,66 @@
             const weekNumber = getWeekNumber(today);
             document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
             
-            // Configurar login
-            document.getElementById('login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
+            // Configurar botões de usuário
+            document.querySelectorAll('.user-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userName = this.getAttribute('data-user');
+                    const userRole = this.getAttribute('data-role');
+                    
+                    if (userRole === 'admin') {
+                        // Mostrar modal para senha de administração
+                        document.getElementById('password-modal').classList.remove('hidden');
+                    } else {
+                        // Login direto para treinadores
+                        currentUser = {
+                            username: userName.toLowerCase().replace(' ', ''),
+                            role: userRole,
+                            name: userName
+                        };
+                        
+                        // Salvar usuário atual no sessionStorage
+                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        
+                        // Registrar log de login
+                        logAction('USER_LOGIN', `Treinador ${userName} acessou o sistema`);
+                        
+                        // Inicializar aplicação
+                        initializeAppForUser();
+                    }
+                });
+            });
+            
+            // Configurar modal de senha
+            document.getElementById('cancel-password').addEventListener('click', function() {
+                document.getElementById('password-modal').classList.add('hidden');
+                document.getElementById('admin-password').value = '';
+            });
+            
+            document.getElementById('submit-password').addEventListener('click', function() {
+                const password = document.getElementById('admin-password').value;
                 
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                if (users[username] && users[username].password === password) {
+                if (password === ADMIN_PASSWORD) {
                     currentUser = {
-                        username: username,
-                        role: users[username].role,
-                        name: users[username].name,
-                        email: users[username].email
+                        username: 'admin',
+                        role: 'admin',
+                        name: 'Coordenação'
                     };
                     
                     // Salvar usuário atual no sessionStorage
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
                     // Registrar log de login
-                    logAction('USER_LOGIN', `Usuário ${username} fez login no sistema`);
+                    logAction('ADMIN_LOGIN', 'Coordenação acessou o sistema');
                     
-                    // Mostrar aplicação
-                    document.getElementById('login-page').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
+                    // Fechar modal e inicializar aplicação
+                    document.getElementById('password-modal').classList.add('hidden');
+                    document.getElementById('admin-password').value = '';
                     
-                    // Atualizar interface com informações do usuário
-                    document.getElementById('current-user').textContent = currentUser.name;
-                    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Treinador';
-                    
-                    // Mostrar/ocultar funcionalidades baseado no papel
-                    if (currentUser.role === 'admin') {
-                        document.querySelectorAll('.admin-only').forEach(el => {
-                            el.style.display = 'block';
-                        });
-                        document.querySelectorAll('.trainer-only').forEach(el => {
-                            el.style.display = 'none';
-                        });
-                    } else {
-                        document.querySelectorAll('.admin-only').forEach(el => {
-                            el.style.display = 'none';
-                        });
-                        document.querySelectorAll('.trainer-only').forEach(el => {
-                            el.style.display = 'block';
-                        });
-                    }
-                    
-                    // Carregar dados iniciais
-                    loadUserEvaluations();
-                    if (currentUser.role === 'admin') {
-                        loadAllEvaluations();
-                        loadSystemLogs();
-                    }
+                    // Inicializar aplicação
+                    initializeAppForUser();
                 } else {
-                    alert('Usuário ou senha incorretos!');
-                    logAction('LOGIN_FAILED', `Tentativa de login com usuário ${username}`);
+                    alert('Senha incorreta!');
+                    document.getElementById('admin-password').value = '';
                 }
             });
             
@@ -786,35 +781,12 @@
             const savedUser = sessionStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                document.getElementById('login-page').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                document.getElementById('current-user').textContent = currentUser.name;
-                document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Treinador';
-                
-                if (currentUser.role === 'admin') {
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        el.style.display = 'block';
-                    });
-                    document.querySelectorAll('.trainer-only').forEach(el => {
-                        el.style.display = 'none';
-                    });
-                    loadAllEvaluations();
-                    loadSystemLogs();
-                } else {
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        el.style.display = 'none';
-                    });
-                    document.querySelectorAll('.trainer-only').forEach(el => {
-                        el.style.display = 'block';
-                    });
-                }
-                
-                loadUserEvaluations();
+                initializeAppForUser();
             }
             
             // Configurar logout
             document.getElementById('logout-btn').addEventListener('click', function() {
-                logAction('USER_LOGOUT', `Usuário ${currentUser.username} fez logout`);
+                logAction('USER_LOGOUT', `Usuário ${currentUser.name} saiu do sistema`);
                 sessionStorage.removeItem('currentUser');
                 currentUser = null;
                 document.getElementById('login-page').classList.remove('hidden');
@@ -919,7 +891,7 @@
                     criteria: criteriaEvaluations,
                     generalObservations: document.getElementById('general-observations').value,
                     timestamp: new Date().toISOString(),
-                    user: currentUser.username
+                    user: currentUser.name
                 };
                 
                 // Salvar avaliação
@@ -969,7 +941,7 @@
                         const evalWeek = getWeekNumber(evalDate);
                         const evalYear = evalDate.getFullYear();
                         
-                        return evalYear == year && evalWeek == week && eval.user === currentUser.username;
+                        return evalYear == year && evalWeek == week && eval.user === currentUser.name;
                     });
                 }
                 
@@ -1002,11 +974,42 @@
             document.getElementById('export-logs').addEventListener('click', function() {
                 exportLogsToFile();
             });
+        }
+        
+        // Função para inicializar a aplicação para o usuário logado
+        function initializeAppForUser() {
+            // Mostrar aplicação
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
             
-            // Configurar envio de logs por e-mail
-            document.getElementById('email-logs').addEventListener('click', function() {
-                emailLogs();
-            });
+            // Atualizar interface com informações do usuário
+            document.getElementById('current-user').textContent = currentUser.name;
+            document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Coordenação' : 'Treinador';
+            
+            // Mostrar/ocultar funcionalidades baseado no papel
+            if (currentUser.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.style.display = 'block';
+                });
+                document.querySelectorAll('.trainer-only').forEach(el => {
+                    el.style.display = 'none';
+                });
+                loadAllEvaluations();
+                loadSystemLogs();
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.trainer-only').forEach(el => {
+                    el.style.display = 'block';
+                });
+                
+                // Preencher automaticamente o nome do treinador no formulário
+                document.getElementById('trainer-name').value = currentUser.name;
+            }
+            
+            // Carregar dados iniciais
+            loadUserEvaluations();
         }
         
         // Função para carregar critérios de performance baseados no tipo de turma
@@ -1070,7 +1073,7 @@
             if (!currentUser) return;
             
             const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-            const userEvaluations = evaluations.filter(eval => eval.user === currentUser.username);
+            const userEvaluations = evaluations.filter(eval => eval.user === currentUser.name);
             
             const container = document.getElementById('saved-evaluations');
             
@@ -1276,57 +1279,6 @@
             
             logAction('LOGS_EXPORTED', 'Logs do sistema exportados para arquivo de texto');
             alert('Logs exportados com sucesso!');
-        }
-        
-        // Função para enviar logs por e-mail
-        function emailLogs() {
-            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
-            
-            if (logs.length === 0) {
-                alert('Nenhum registro de log para enviar.');
-                return;
-            }
-            
-            // Ordenar logs por timestamp (mais recente primeiro)
-            logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
-            logText += '===========================================================\n\n';
-            
-            logs.forEach(log => {
-                logText += `TIMESTAMP: ${formatDateTime(log.timestamp)}\n`;
-                logText += `USUÁRIO: ${log.user}\n`;
-                logText += `AÇÃO: ${log.action}\n`;
-                logText += `DETALHES: ${log.details}\n`;
-                logText += '----------------------------------------\n\n';
-            });
-            
-            // Em um ambiente real, aqui você enviaria o e-mail
-            // Como estamos em um ambiente de demonstração, vamos simular esse comportamento
-            try {
-                if (typeof Email !== 'undefined') {
-                    Email.send({
-                        SecureToken: "your-token-here", // Em produção, use um token seguro
-                        To: 'leaderscenter.stm@gmail.com',
-                        From: 'system@leaderscenter.com',
-                        Subject: `Logs do Sistema - ${new Date().toLocaleDateString('pt-BR')}`,
-                        Body: logText
-                    }).then(
-                        message => {
-                            alert('Logs enviados por e-mail com sucesso!');
-                            logAction('LOGS_EMAILED', 'Logs do sistema enviados por e-mail');
-                        }
-                    );
-                } else {
-                    // Fallback para demonstração
-                    alert('Em um ambiente real, os logs seriam enviados para leaderscenter.stm@gmail.com');
-                    console.log("Conteúdo do e-mail:", logText);
-                    logAction('LOGS_EMAILED', 'Logs do sistema enviados por e-mail (simulado)');
-                }
-            } catch (error) {
-                console.error("Erro ao enviar e-mail:", error);
-                alert('Erro ao enviar e-mail. Verifique o console para mais detalhes.');
-            }
         }
         
         // Função para gerar relatório
