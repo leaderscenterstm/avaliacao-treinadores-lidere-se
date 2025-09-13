@@ -44,7 +44,7 @@
             border-radius: 5px;
         }
         
-        h1, h2, h3 {
+        h1, h2, h3, h4 {
             margin-bottom: 1rem;
         }
         
@@ -168,26 +168,40 @@
             display: block;
         }
         
-        .rating-container {
+        .rating-options {
             display: flex;
-            justify-content: space-between;
-            margin: 1rem 0;
-        }
-        
-        .rating-item {
-            text-align: center;
-            flex: 1;
-            margin: 0 0.5rem;
-        }
-        
-        .rating-slider {
-            width: 100%;
+            gap: 1rem;
             margin: 0.5rem 0;
         }
         
-        .rating-value {
+        .rating-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .criteria-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .criteria-title {
             font-weight: bold;
-            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .criteria-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .criteria-item:last-child {
+            border-bottom: none;
         }
         
         .notification {
@@ -265,15 +279,30 @@
             display: none;
         }
         
+        .performance-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .performance-excellent {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .performance-good {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .performance-improve {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
         @media (max-width: 768px) {
-            .rating-container {
-                flex-direction: column;
-            }
-            
-            .rating-item {
-                margin: 0.5rem 0;
-            }
-            
             .tabs {
                 flex-direction: column;
             }
@@ -286,6 +315,11 @@
             .user-info {
                 flex-direction: column;
                 gap: 10px;
+            }
+            
+            .rating-options {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -390,31 +424,14 @@
                         
                         <div class="card">
                             <h3>Indicadores de Performance</h3>
-                            
-                            <div class="rating-container">
-                                <div class="rating-item">
-                                    <label for="participation">Participação</label>
-                                    <input type="range" id="participation" class="rating-slider" min="1" max="5" value="3">
-                                    <div class="rating-value" id="participation-value">3</div>
-                                </div>
-                                
-                                <div class="rating-item">
-                                    <label for="understanding">Compreensão</label>
-                                    <input type="range" id="understanding" class="rating-slider" min="1" max="5" value="3">
-                                    <div class="rating-value" id="understanding-value">3</div>
-                                </div>
-                                
-                                <div class="rating-item">
-                                    <label for="engagement">Engajamento</label>
-                                    <input type="range" id="engagement" class="rating-slider" min="1" max="5" value="3">
-                                    <div class="rating-value" id="engagement-value">3</div>
-                                </div>
+                            <div id="performance-criteria">
+                                <p>Selecione uma turma para carregar os critérios de avaliação...</p>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="observations">Observações</label>
-                                <textarea id="observations" rows="4" placeholder="Observações relevantes sobre a turma..."></textarea>
-                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="general-observations">Observações Gerais</label>
+                            <textarea id="general-observations" rows="4" placeholder="Observações gerais sobre a turma..."></textarea>
                         </div>
                         
                         <button type="submit" class="btn-success">Registrar Avaliação</button>
@@ -461,21 +478,21 @@
                         </div>
                         
                         <div class="dashboard-card">
-                            <h3>Média de Participação</h3>
-                            <div class="stat-value" id="avg-participation">0.0</div>
-                            <div class="stat-label">Escala de 1 a 5</div>
+                            <h3>Avaliações Excelentes</h3>
+                            <div class="stat-value" id="excellent-evaluations">0%</div>
+                            <div class="stat-label">Percentual de avaliações excelentes</div>
                         </div>
                         
                         <div class="dashboard-card">
-                            <h3>Média de Compreensão</h3>
-                            <div class="stat-value" id="avg-understanding">0.0</div>
-                            <div class="stat-label">Escala de 1 a 5</div>
+                            <h3>Avaliações Boas</h3>
+                            <div class="stat-value" id="good-evaluations">0%</div>
+                            <div class="stat-label">Percentual de avaliações boas</div>
                         </div>
                         
                         <div class="dashboard-card">
-                            <h3>Média de Engajamento</h3>
-                            <div class="stat-value" id="avg-engagement">0.0</div>
-                            <div class="stat-label">Escala de 1 a 5</div>
+                            <h3>Avaliações a Melhorar</h3>
+                            <div class="stat-value" id="improve-evaluations">0%</div>
+                            <div class="stat-label">Percentual de avaliações a melhorar</div>
                         </div>
                     </div>
                 </div>
@@ -506,7 +523,93 @@
             'user': { password: 'user123', role: 'user', name: 'Usuário Padrão' }
         };
         
+        // Critérios de performance por tipo de turma
+        const performanceCriteria = {
+            'Foundation': [
+                {
+                    id: 'participation',
+                    title: 'Participação',
+                    description: 'A turma participou ativamente das atividades propostas?'
+                },
+                {
+                    id: 'understanding',
+                    title: 'Compreensão',
+                    description: 'Demonstrou compreender os conceitos de forma adequada para a idade?'
+                },
+                {
+                    id: 'practice',
+                    title: 'Prática',
+                    description: 'Conseguiu colocar em prática a atividade/jogo da aula como grupo?'
+                },
+                {
+                    id: 'interaction',
+                    title: 'Interação',
+                    description: 'Interagiu bem entre si durante a experiência?'
+                },
+                {
+                    id: 'posture',
+                    title: 'Postura',
+                    description: 'Manteve postura e atitude compatíveis (escuta, espera, respeito)?'
+                }
+            ],
+            'Discovery': [
+                {
+                    id: 'attention',
+                    title: 'Atenção e Engajamento',
+                    description: 'A turma manteve bom nível de atenção e engajamento nas atividades?'
+                },
+                {
+                    id: 'content',
+                    title: 'Domínio do Conteúdo',
+                    description: 'Demonstrou domínio básico do conteúdo trabalhado em aula?'
+                },
+                {
+                    id: 'application',
+                    title: 'Aplicação Prática',
+                    description: 'Aplicou o que aprendeu durante a experiência prática como grupo?'
+                },
+                {
+                    id: 'collaboration',
+                    title: 'Colaboração',
+                    description: 'Colaborou e se entrosou no desenvolvimento das atividades?'
+                },
+                {
+                    id: 'leadership',
+                    title: 'Liderança',
+                    description: 'Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?'
+                }
+            ],
+            'Challenge': [
+                {
+                    id: 'engagement',
+                    title: 'Engajamento',
+                    description: 'A turma se manteve engajada e atenta ao longo da aula?'
+                },
+                {
+                    id: 'mastery',
+                    title: 'Domínio do Conteúdo',
+                    description: 'Apresentou domínio do conteúdo de forma clara e consistente?'
+                },
+                {
+                    id: 'application',
+                    title: 'Aplicação do Aprendizado',
+                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?'
+                },
+                {
+                    id: 'cooperation',
+                    title: 'Cooperação e Liderança',
+                    description: 'Atuou em cooperação e liderança durante as atividades?'
+                },
+                {
+                    id: 'responsibility',
+                    title: 'Responsabilidade',
+                    description: 'Demonstrou responsabilidade e maturidade no comportamento coletivo?'
+                }
+            ]
+        };
+        
         let currentUser = null;
+        let currentClassType = '';
         
         // Função para inicializar a aplicação
         function initApp() {
@@ -524,17 +627,6 @@
             const year = today.getFullYear();
             const weekNumber = getWeekNumber(today);
             document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
-            
-            // Atualizar valores dos sliders
-            const sliders = document.querySelectorAll('.rating-slider');
-            sliders.forEach(slider => {
-                const valueDisplay = document.getElementById(`${slider.id}-value`);
-                valueDisplay.textContent = slider.value;
-                
-                slider.addEventListener('input', function() {
-                    valueDisplay.textContent = this.value;
-                });
-            });
             
             // Configurar login
             document.getElementById('login-form').addEventListener('submit', function(e) {
@@ -607,6 +699,26 @@
                 document.getElementById('app-container').classList.add('hidden');
             });
             
+            // Detectar mudança na seleção de turma
+            document.getElementById('class').addEventListener('change', function() {
+                const selectedClass = this.value;
+                if (selectedClass) {
+                    // Determinar o tipo de turma (Foundation, Discovery, Challenge)
+                    if (selectedClass.includes('Foundation')) {
+                        currentClassType = 'Foundation';
+                    } else if (selectedClass.includes('Discovery')) {
+                        currentClassType = 'Discovery';
+                    } else if (selectedClass.includes('Challenge')) {
+                        currentClassType = 'Challenge';
+                    } else {
+                        currentClassType = '';
+                    }
+                    
+                    // Carregar critérios de avaliação apropriados
+                    loadPerformanceCriteria(currentClassType);
+                }
+            });
+            
             // Alternar entre abas
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
@@ -640,16 +752,30 @@
             document.getElementById('evaluation-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // Coletar avaliações dos critérios
+                const criteriaEvaluations = {};
+                const criteriaElements = document.querySelectorAll('.criteria-item');
+                
+                criteriaElements.forEach(criteria => {
+                    const criterionId = criteria.getAttribute('data-criterion');
+                    const selectedValue = criteria.querySelector('input[name="performance-' + criterionId + '"]:checked');
+                    const observations = criteria.querySelector('textarea').value;
+                    
+                    criteriaEvaluations[criterionId] = {
+                        value: selectedValue ? selectedValue.value : '',
+                        observations: observations
+                    };
+                });
+                
                 const evaluation = {
                     trainer: document.getElementById('trainer-name').value,
                     axis: document.getElementById('axis').value,
                     date: document.getElementById('date').value,
                     shift: document.getElementById('shift').value,
                     class: document.getElementById('class').value,
-                    participation: document.getElementById('participation').value,
-                    understanding: document.getElementById('understanding').value,
-                    engagement: document.getElementById('engagement').value,
-                    observations: document.getElementById('observations').value,
+                    classType: currentClassType,
+                    criteria: criteriaEvaluations,
+                    generalObservations: document.getElementById('general-observations').value,
                     timestamp: new Date().toISOString(),
                     user: currentUser.username
                 };
@@ -665,12 +791,7 @@
                 // Limpar formulário
                 this.reset();
                 document.getElementById('date').value = formattedDate;
-                
-                // Resetar sliders
-                sliders.forEach(slider => {
-                    slider.value = 3;
-                    document.getElementById(`${slider.id}-value`).textContent = '3';
-                });
+                document.getElementById('performance-criteria').innerHTML = '<p>Selecione uma turma para carregar os critérios de avaliação...</p>';
                 
                 // Mostrar mensagem de sucesso
                 alert('Avaliação registrada com sucesso! PDF gerado.');
@@ -724,6 +845,49 @@
             });
         }
         
+        // Função para carregar critérios de performance baseados no tipo de turma
+        function loadPerformanceCriteria(classType) {
+            const container = document.getElementById('performance-criteria');
+            
+            if (!classType || !performanceCriteria[classType]) {
+                container.innerHTML = '<p>Selecione uma turma válida para carregar os critérios de avaliação.</p>';
+                return;
+            }
+            
+            let html = `<h4>Critérios de Performance - ${classType}</h4>`;
+            
+            performanceCriteria[classType].forEach(criterion => {
+                html += `
+                <div class="criteria-item" data-criterion="${criterion.id}">
+                    <div class="criteria-title">${criterion.title}</div>
+                    <p>${criterion.description}</p>
+                    
+                    <div class="rating-options">
+                        <div class="rating-option">
+                            <input type="radio" id="${criterion.id}-excellent" name="performance-${criterion.id}" value="Excelente" required>
+                            <label for="${criterion.id}-excellent">Excelente</label>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" id="${criterion.id}-good" name="performance-${criterion.id}" value="Bom">
+                            <label for="${criterion.id}-good">Bom</label>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" id="${criterion.id}-improve" name="performance-${criterion.id}" value="A melhorar">
+                            <label for="${criterion.id}-improve">A melhorar</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observations-${criterion.id}">Observações:</label>
+                        <textarea id="observations-${criterion.id}" rows="2" placeholder="Observações sobre este critério..."></textarea>
+                    </div>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
         // Função para obter número da semana
         function getWeekNumber(date) {
             const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -749,15 +913,29 @@
             userEvaluations.forEach((evaluation, index) => {
                 const evalElement = document.createElement('div');
                 evalElement.className = 'evaluation-card card';
+                
+                let criteriaHtml = '';
+                for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
+                    let badgeClass = '';
+                    if (data.value === 'Excelente') badgeClass = 'performance-excellent';
+                    if (data.value === 'Bom') badgeClass = 'performance-good';
+                    if (data.value === 'A melhorar') badgeClass = 'performance-improve';
+                    
+                    criteriaHtml += `
+                        <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
+                        ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                    `;
+                }
+                
                 evalElement.innerHTML = `
                     <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
                     <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
                     <p><strong>Eixo:</strong> ${evaluation.axis}</p>
                     <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                    <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
-                    <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
-                    <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
-                    ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                    <div class="criteria-results">
+                        ${criteriaHtml}
+                    </div>
+                    ${evaluation.generalObservations ? `<p><strong>Observações Gerais:</strong> ${evaluation.generalObservations}</p>` : ''}
                     <div class="evaluation-actions">
                         <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
                     </div>
@@ -804,16 +982,30 @@
             filteredEvaluations.forEach((evaluation, index) => {
                 const evalElement = document.createElement('div');
                 evalElement.className = 'evaluation-card card';
+                
+                let criteriaHtml = '';
+                for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
+                    let badgeClass = '';
+                    if (data.value === 'Excelente') badgeClass = 'performance-excellent';
+                    if (data.value === 'Bom') badgeClass = 'performance-good';
+                    if (data.value === 'A melhorar') badgeClass = 'performance-improve';
+                    
+                    criteriaHtml += `
+                        <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
+                        ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                    `;
+                }
+                
                 evalElement.innerHTML = `
                     <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
                     <p><strong>Usuário:</strong> ${evaluation.user}</p>
                     <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
                     <p><strong>Eixo:</strong> ${evaluation.axis}</p>
                     <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                    <p><strong>Participação:</strong> ${evaluation.participation}/5</p>
-                    <p><strong>Compreensão:</strong> ${evaluation.understanding}/5</p>
-                    <p><strong>Engajamento:</strong> ${evaluation.engagement}/5</p>
-                    ${evaluation.observations ? `<p><strong>Observações:</strong> ${evaluation.observations}</p>` : ''}
+                    <div class="criteria-results">
+                        ${criteriaHtml}
+                    </div>
+                    ${evaluation.generalObservations ? `<p><strong>Observações Gerais:</strong> ${evaluation.generalObservations}</p>` : ''}
                     <div class="evaluation-actions">
                         <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
                     </div>
@@ -840,15 +1032,25 @@
             // Atualizar estatísticas
             document.getElementById('total-evaluations').textContent = evaluations.length;
             
-            // Calcular médias
+            // Calcular percentuais de avaliações
             if (evaluations.length > 0) {
-                const totalParticipation = evaluations.reduce((sum, eval) => sum + parseInt(eval.participation), 0);
-                const totalUnderstanding = evaluations.reduce((sum, eval) => sum + parseInt(eval.understanding), 0);
-                const totalEngagement = evaluations.reduce((sum, eval) => sum + parseInt(eval.engagement), 0);
+                let excellentCount = 0;
+                let goodCount = 0;
+                let improveCount = 0;
                 
-                document.getElementById('avg-participation').textContent = (totalParticipation / evaluations.length).toFixed(1);
-                document.getElementById('avg-understanding').textContent = (totalUnderstanding / evaluations.length).toFixed(1);
-                document.getElementById('avg-engagement').textContent = (totalEngagement / evaluations.length).toFixed(1);
+                evaluations.forEach(evaluation => {
+                    for (const criterion of Object.values(evaluation.criteria)) {
+                        if (criterion.value === 'Excelente') excellentCount++;
+                        if (criterion.value === 'Bom') goodCount++;
+                        if (criterion.value === 'A melhorar') improveCount++;
+                    }
+                });
+                
+                const totalCriteria = evaluations.length * Object.keys(performanceCriteria.Foundation).length;
+                
+                document.getElementById('excellent-evaluations').textContent = Math.round((excellentCount / totalCriteria) * 100) + '%';
+                document.getElementById('good-evaluations').textContent = Math.round((goodCount / totalCriteria) * 100) + '%';
+                document.getElementById('improve-evaluations').textContent = Math.round((improveCount / totalCriteria) * 100) + '%';
             }
         }
         
@@ -883,9 +1085,7 @@
                             <th>Treinador</th>
                             <th>Eixo</th>
                             <th>Turno</th>
-                            <th>Participação</th>
-                            <th>Compreensão</th>
-                            <th>Engajamento</th>
+                            <th>Performance</th>
                             <th>Observações</th>
                         </tr>
                     </thead>
@@ -894,38 +1094,40 @@
                 `;
                 
                 const tbody = table.querySelector('tbody');
-                let totalPart = 0, totalUnd = 0, totalEng = 0;
                 
                 // Preencher tabela com avaliações
                 classEvals.forEach(eval => {
+                    // Calcular performance média
+                    let excellentCount = 0;
+                    let goodCount = 0;
+                    let improveCount = 0;
+                    
+                    for (const criterion of Object.values(eval.criteria)) {
+                        if (criterion.value === 'Excelente') excellentCount++;
+                        if (criterion.value === 'Bom') goodCount++;
+                        if (criterion.value === 'A melhorar') improveCount++;
+                    }
+                    
+                    let performanceText = '';
+                    if (excellentCount > goodCount && excellentCount > improveCount) {
+                        performanceText = '<span class="performance-badge performance-excellent">Excelente</span>';
+                    } else if (goodCount > excellentCount && goodCount > improveCount) {
+                        performanceText = '<span class="performance-badge performance-good">Boa</span>';
+                    } else {
+                        performanceText = '<span class="performance-badge performance-improve">A melhorar</span>';
+                    }
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${formatDate(eval.date)}</td>
                         <td>${eval.trainer}</td>
                         <td>${eval.axis}</td>
                         <td>${eval.shift}</td>
-                        <td>${eval.participation}</td>
-                        <td>${eval.understanding}</td>
-                        <td>${eval.engagement}</td>
-                        <td>${eval.observations || '-'}</td>
+                        <td>${performanceText}</td>
+                        <td>${eval.generalObservations || '-'}</td>
                     `;
                     tbody.appendChild(row);
-                    
-                    totalPart += parseInt(eval.participation);
-                    totalUnd += parseInt(eval.understanding);
-                    totalEng += parseInt(eval.engagement);
                 });
-                
-                // Adicionar médias
-                const avgRow = document.createElement('tr');
-                avgRow.innerHTML = `
-                    <td colspan="4"><strong>Médias</strong></td>
-                    <td><strong>${(totalPart / classEvals.length).toFixed(1)}</strong></td>
-                    <td><strong>${(totalUnd / classEvals.length).toFixed(1)}</strong></td>
-                    <td><strong>${(totalEng / classEvals.length).toFixed(1)}</strong></td>
-                    <td></td>
-                `;
-                tbody.appendChild(avgRow);
                 
                 classSection.appendChild(table);
                 reportContent.appendChild(classSection);
@@ -974,46 +1176,57 @@
             doc.text(`Turma: ${evaluation.class}`, 20, yPosition);
             yPosition += 15;
             
-            // Indicadores de performance
+            // Critérios de performance
             doc.setFontSize(16);
             doc.setTextColor(40, 40, 40);
-            doc.text('Indicadores de Performance', 20, yPosition);
+            doc.text('Avaliação de Critérios de Performance', 20, yPosition);
             yPosition += 10;
             
             doc.setFontSize(12);
-            doc.setTextColor(80, 80, 80);
             
-            // Participação
-            doc.text(`Participação: ${evaluation.participation}/5`, 20, yPosition);
-            doc.setFillColor(52, 152, 219);
-            doc.rect(70, yPosition - 4, evaluation.participation * 10, 8, 'F');
-            yPosition += 12;
-            
-            // Compreensão
-            doc.text(`Compreensão: ${evaluation.understanding}/5`, 20, yPosition);
-            doc.setFillColor(46, 204, 113);
-            doc.rect(70, yPosition - 4, evaluation.understanding * 10, 8, 'F');
-            yPosition += 12;
-            
-            // Engajamento
-            doc.text(`Engajamento: ${evaluation.engagement}/5`, 20, yPosition);
-            doc.setFillColor(155, 89, 182);
-            doc.rect(70, yPosition - 4, evaluation.engagement * 10, 8, 'F');
-            yPosition += 15;
-            
-            // Observações
-            if (evaluation.observations) {
-                doc.setFontSize(16);
+            for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                // Nome do critério
+                doc.setFontSize(12);
                 doc.setTextColor(40, 40, 40);
-                doc.text('Observações', 20, yPosition);
-                yPosition += 10;
+                doc.text(`${criterionId}: ${data.value}`, 20, yPosition);
+                yPosition += 7;
+                
+                // Observações do critério
+                if (data.observations) {
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    
+                    const splitObservations = doc.splitTextToSize(`Observações: ${data.observations}`, 170);
+                    doc.text(splitObservations, 25, yPosition);
+                    yPosition += splitObservations.length * 5 + 5;
+                } else {
+                    yPosition += 5;
+                }
+            }
+            
+            // Observações gerais
+            if (evaluation.generalObservations) {
+                if (yPosition > 220) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
                 
                 doc.setFontSize(12);
-                doc.setTextColor(80, 80, 80);
+                doc.setTextColor(40, 40, 40);
+                doc.text('Observações Gerais:', 20, yPosition);
+                yPosition += 7;
                 
-                const splitObservations = doc.splitTextToSize(evaluation.observations, 170);
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                
+                const splitObservations = doc.splitTextToSize(evaluation.generalObservations, 170);
                 doc.text(splitObservations, 20, yPosition);
-                yPosition += splitObservations.length * 6 + 10;
+                yPosition += splitObservations.length * 5 + 10;
             }
             
             // Rodapé
