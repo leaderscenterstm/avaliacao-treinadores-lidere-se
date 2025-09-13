@@ -320,6 +320,7 @@
             cursor: pointer;
             text-align: center;
             transition: all 0.3s;
+            font-size: 1rem;
         }
         
         .user-button:hover {
@@ -330,6 +331,8 @@
         
         .coord-button {
             background-color: var(--secondary-color);
+            grid-column: 1 / -1;
+            margin-top: 10px;
         }
         
         .coord-button:hover {
@@ -399,7 +402,7 @@
                 <button class="user-button" data-user="Susej Cristo" data-role="trainer">Susej Cristo</button>
                 <button class="user-button" data-user="Nathalie Benitah" data-role="trainer">Nathalie Benitah</button>
                 <button class="user-button" data-user="Fellipe Figueira" data-role="trainer">Fellipe Figueira</button>
-                <button class="user-button coord-button" data-user="Coordenação" data-role="admin">Coordenação</button>
+                <button class="user-button coord-button" id="coord-access-btn" data-user="Coordenação" data-role="admin">Acesso da Coordenação</button>
             </div>
         </div>
     </div>
@@ -569,7 +572,6 @@
                         <input type="text" id="search-logs" placeholder="Digite para filtrar logs...">
                     </div>
                     <button id="export-logs" class="btn-success">Exportar Logs</button>
-                    <button id="email-logs" class="btn-pdf">Enviar Logs por E-mail</button>
                     <div id="logs-list">
                         <p>Carregando logs do sistema...</p>
                     </div>
@@ -638,7 +640,7 @@
                 {
                     id: 'leadership',
                     title: 'Liderança',
-                    description: 'Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?'
+                    description: 'Demonstrou postura adequada de líderes em formation (confiança, respeito, organização)?'
                 }
             ],
             'Challenge': [
@@ -655,7 +657,7 @@
                 {
                     id: 'application',
                     title: 'Aplicação do Aprendizado',
-                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentaciones como grupo?'
+                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?'
                 },
                 {
                     id: 'cooperation',
@@ -715,32 +717,33 @@
             document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
             
             // Configurar botões de usuário
-            document.querySelectorAll('.user-button').forEach(button => {
+            document.querySelectorAll('.user-button:not(.coord-button)').forEach(button => {
                 button.addEventListener('click', function() {
                     const userName = this.getAttribute('data-user');
                     const userRole = this.getAttribute('data-role');
                     
-                    if (userRole === 'admin') {
-                        // Mostrar modal para senha de administração
-                        document.getElementById('password-modal').classList.remove('hidden');
-                    } else {
-                        // Login direto para treinadores
-                        currentUser = {
-                            username: userName.toLowerCase().replace(' ', ''),
-                            role: userRole,
-                            name: userName
-                        };
-                        
-                        // Salvar usuário atual no sessionStorage
-                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        
-                        // Registrar log de login
-                        logAction('USER_LOGIN', `Treinador ${userName} acessou o sistema`);
-                        
-                        // Inicializar aplicação
-                        initializeAppForUser();
-                    }
+                    // Login direto para treinadores
+                    currentUser = {
+                        username: userName.toLowerCase().replace(' ', ''),
+                        role: userRole,
+                        name: userName
+                    };
+                    
+                    // Salvar usuário atual no sessionStorage
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Registrar log de login
+                    logAction('USER_LOGIN', `Treinador ${userName} acessou o sistema`);
+                    
+                    // Inicializar aplicação
+                    initializeAppForUser();
                 });
+            });
+            
+            // Configurar botão de acesso da coordenação
+            document.getElementById('coord-access-btn').addEventListener('click', function() {
+                // Mostrar modal para senha de administração
+                document.getElementById('password-modal').classList.remove('hidden');
             });
             
             // Configurar modal de senha
@@ -1178,7 +1181,7 @@
                     <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
                     <p><strong>Usuário:</strong> ${evaluation.user}</p>
                     <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
+                    <p><strong>Eixo:</strong> ${evaluation.axis</p>
                     <p><strong>Turno:</strong> ${evaluation.shift}</p>
                     <div class="criteria-results">
                         ${criteriaHtml}
