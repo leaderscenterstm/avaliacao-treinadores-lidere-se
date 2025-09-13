@@ -115,27 +115,6 @@
             background-color: #c0392b;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-        
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background-color: var(--light-gray);
-            font-weight: bold;
-        }
-        
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        
         .hidden {
             display: none;
         }
@@ -168,40 +147,85 @@
             display: block;
         }
         
-        .rating-options {
-            display: flex;
-            gap: 1rem;
-            margin: 0.5rem 0;
-        }
-        
-        .rating-option {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        /* ESTILOS PARA OS CRITÉRIOS DE AVALIAÇÃO */
+        .criteria-container {
+            margin-top: 1.5rem;
         }
         
         .criteria-group {
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
         }
         
         .criteria-title {
             font-weight: bold;
             margin-bottom: 0.5rem;
             color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+        
+        .criteria-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-style: italic;
         }
         
         .criteria-item {
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px dashed #ddd;
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
         }
         
-        .criteria-item:last-child {
-            border-bottom: none;
+        .rating-options {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .rating-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .rating-option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .rating-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .rating-option label {
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .rating-excellent {
+            color: var(--success-color);
+        }
+        
+        .rating-good {
+            color: var(--primary-color);
+        }
+        
+        .rating-improve {
+            color: var(--warning-color);
+        }
+        
+        .observations-field {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #ddd;
         }
         
         .notification {
@@ -239,32 +263,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .dashboard-card {
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin: 0.5rem 0;
-        }
-        
-        .stat-label {
-            color: var(--dark-gray);
-            font-size: 0.9rem;
-        }
-        
         .user-info {
             margin: 10px 0;
             padding: 10px;
@@ -281,9 +279,9 @@
         
         .performance-badge {
             display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: bold;
         }
         
@@ -319,7 +317,11 @@
             
             .rating-options {
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.8rem;
+            }
+            
+            .criteria-item {
+                padding: 1rem;
             }
         }
     </style>
@@ -470,29 +472,10 @@
                 <div class="card">
                     <h2>Dashboard de Métricas</h2>
                     
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card">
-                            <h3>Total de Avaliações</h3>
-                            <div class="stat-value" id="total-evaluations">0</div>
-                            <div class="stat-label">Registros no sistema</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3>Avaliações Excelentes</h3>
-                            <div class="stat-value" id="excellent-evaluations">0%</div>
-                            <div class="stat-label">Percentual de avaliações excelentes</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3>Avaliações Boas</h3>
-                            <div class="stat-value" id="good-evaluations">0%</div>
-                            <div class="stat-label">Percentual de avaliações boas</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3>Avaliações a Melhorar</h3>
-                            <div class="stat-value" id="improve-evaluations">0%</div>
-                            <div class="stat-label">Percentual de avaliações a melhorar</div>
+                    <div class="card">
+                        <h3>Estatísticas de Performance</h3>
+                        <div id="dashboard-stats">
+                            <p>Selecione uma turma e período para visualizar as estatísticas.</p>
                         </div>
                     </div>
                 </div>
@@ -664,7 +647,6 @@
                     loadUserEvaluations();
                     if (currentUser.role === 'admin') {
                         loadAllEvaluations();
-                        loadDashboardData();
                     }
                 } else {
                     alert('Usuário ou senha incorretos!');
@@ -685,7 +667,6 @@
                         el.style.display = 'block';
                     });
                     loadAllEvaluations();
-                    loadDashboardData();
                 }
                 
                 loadUserEvaluations();
@@ -742,8 +723,6 @@
                         loadUserEvaluations();
                     } else if (tabName === 'all-evaluations' && currentUser && currentUser.role === 'admin') {
                         loadAllEvaluations();
-                    } else if (tabName === 'dashboard' && currentUser && currentUser.role === 'admin') {
-                        loadDashboardData();
                     }
                 });
             });
@@ -756,16 +735,29 @@
                 const criteriaEvaluations = {};
                 const criteriaElements = document.querySelectorAll('.criteria-item');
                 
+                let allCriteriaFilled = true;
                 criteriaElements.forEach(criteria => {
                     const criterionId = criteria.getAttribute('data-criterion');
                     const selectedValue = criteria.querySelector('input[name="performance-' + criterionId + '"]:checked');
                     const observations = criteria.querySelector('textarea').value;
+                    
+                    if (!selectedValue) {
+                        allCriteriaFilled = false;
+                        criteria.style.border = '1px solid var(--danger-color)';
+                    } else {
+                        criteria.style.border = '1px solid #eee';
+                    }
                     
                     criteriaEvaluations[criterionId] = {
                         value: selectedValue ? selectedValue.value : '',
                         observations: observations
                     };
                 });
+                
+                if (!allCriteriaFilled) {
+                    alert('Por favor, avalie todos os critérios antes de enviar.');
+                    return;
+                }
                 
                 const evaluation = {
                     trainer: document.getElementById('trainer-name').value,
@@ -854,37 +846,43 @@
                 return;
             }
             
-            let html = `<h4>Critérios de Performance - ${classType}</h4>`;
+            let html = `
+                <div class="criteria-container">
+                    <h4>Critérios de Performance - ${classType}</h4>
+            `;
             
             performanceCriteria[classType].forEach(criterion => {
                 html += `
                 <div class="criteria-item" data-criterion="${criterion.id}">
                     <div class="criteria-title">${criterion.title}</div>
-                    <p>${criterion.description}</p>
+                    <div class="criteria-description">${criterion.description}</div>
                     
                     <div class="rating-options">
-                        <div class="rating-option">
+                        <div class="rating-option rating-excellent">
                             <input type="radio" id="${criterion.id}-excellent" name="performance-${criterion.id}" value="Excelente" required>
                             <label for="${criterion.id}-excellent">Excelente</label>
                         </div>
-                        <div class="rating-option">
+                        <div class="rating-option rating-good">
                             <input type="radio" id="${criterion.id}-good" name="performance-${criterion.id}" value="Bom">
                             <label for="${criterion.id}-good">Bom</label>
                         </div>
-                        <div class="rating-option">
+                        <div class="rating-option rating-improve">
                             <input type="radio" id="${criterion.id}-improve" name="performance-${criterion.id}" value="A melhorar">
                             <label for="${criterion.id}-improve">A melhorar</label>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="observations-${criterion.id}">Observações:</label>
-                        <textarea id="observations-${criterion.id}" rows="2" placeholder="Observações sobre este critério..."></textarea>
+                    <div class="observations-field">
+                        <div class="form-group">
+                            <label for="observations-${criterion.id}">Observações:</label>
+                            <textarea id="observations-${criterion.id}" rows="2" placeholder="Observações sobre este critério..."></textarea>
+                        </div>
                     </div>
                 </div>
                 `;
             });
             
+            html += `</div>`;
             container.innerHTML = html;
         }
         
@@ -922,8 +920,10 @@
                     if (data.value === 'A melhorar') badgeClass = 'performance-improve';
                     
                     criteriaHtml += `
-                        <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
-                        ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
+                            ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                        </div>
                     `;
                 }
                 
@@ -991,8 +991,10 @@
                     if (data.value === 'A melhorar') badgeClass = 'performance-improve';
                     
                     criteriaHtml += `
-                        <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
-                        ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
+                            ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
+                        </div>
                     `;
                 }
                 
@@ -1021,37 +1023,6 @@
                     generateEvaluationPDF(filteredEvaluations[index]);
                 });
             });
-        }
-        
-        // Função para carregar dados do dashboard (admin)
-        function loadDashboardData() {
-            if (!currentUser || currentUser.role !== 'admin') return;
-            
-            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-            
-            // Atualizar estatísticas
-            document.getElementById('total-evaluations').textContent = evaluations.length;
-            
-            // Calcular percentuais de avaliações
-            if (evaluations.length > 0) {
-                let excellentCount = 0;
-                let goodCount = 0;
-                let improveCount = 0;
-                
-                evaluations.forEach(evaluation => {
-                    for (const criterion of Object.values(evaluation.criteria)) {
-                        if (criterion.value === 'Excelente') excellentCount++;
-                        if (criterion.value === 'Bom') goodCount++;
-                        if (criterion.value === 'A melhorar') improveCount++;
-                    }
-                });
-                
-                const totalCriteria = evaluations.length * Object.keys(performanceCriteria.Foundation).length;
-                
-                document.getElementById('excellent-evaluations').textContent = Math.round((excellentCount / totalCriteria) * 100) + '%';
-                document.getElementById('good-evaluations').textContent = Math.round((goodCount / totalCriteria) * 100) + '%';
-                document.getElementById('improve-evaluations').textContent = Math.round((improveCount / totalCriteria) * 100) + '%';
-            }
         }
         
         // Função para gerar relatório
