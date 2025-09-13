@@ -402,7 +402,7 @@
                 <button class="user-button" data-user="Susej Cristo" data-role="trainer">Susej Cristo</button>
                 <button class="user-button" data-user="Nathalie Benitah" data-role="trainer">Nathalie Benitah</button>
                 <button class="user-button" data-user="Fellipe Figueira" data-role="trainer">Fellipe Figueira</button>
-                <button class="user-button coord-button" id="coord-access-btn" data-user="Coordenação" data-role="admin">Acesso da Coordenação</button>
+                <button class="user-button coord-button" id="coord-access-btn">Acesso da Coordenação</button>
             </div>
         </div>
     </div>
@@ -619,7 +619,7 @@
             'Discovery': [
                 {
                     id: 'attention',
-                    title: 'Atenção e Engajamento',
+                    title: 'Atenção and Engajamento',
                     description: 'A turma manteve bom nível de atenção e engajamento nas atividades?'
                 },
                 {
@@ -640,7 +640,7 @@
                 {
                     id: 'leadership',
                     title: 'Liderança',
-                    description: 'Demonstrou postura adequada de líderes em formation (confiança, respeito, organização)?'
+                    description: 'Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?'
                 }
             ],
             'Challenge': [
@@ -667,7 +667,7 @@
                 {
                     id: 'responsibility',
                     title: 'Responsabilidade',
-                    description: 'Demonstrou responsabilidade e maturidade no comportamento coletivo?'
+                    description: 'Demonstrou responsabilidade and maturidade no comportamento coletivo?'
                 }
             ]
         };
@@ -720,12 +720,11 @@
             document.querySelectorAll('.user-button:not(.coord-button)').forEach(button => {
                 button.addEventListener('click', function() {
                     const userName = this.getAttribute('data-user');
-                    const userRole = this.getAttribute('data-role');
                     
                     // Login direto para treinadores
                     currentUser = {
                         username: userName.toLowerCase().replace(' ', ''),
-                        role: userRole,
+                        role: 'trainer',
                         name: userName
                     };
                     
@@ -1158,7 +1157,7 @@
             }
             
             container.innerHTML = '';
-            filteredEvaluations.forEach((evaluation, index) => {
+            filteredEvaluations.forEach((evaluation, index) {
                 const evalElement = document.createElement('div');
                 evalElement.className = 'evaluation-card card';
                 
@@ -1180,8 +1179,8 @@
                 evalElement.innerHTML = `
                     <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
                     <p><strong>Usuário:</strong> ${evaluation.user}</p>
-                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                    <p><strong>Eixo:</strong> ${evaluation.axis</p>
+                    <p><strong>Treinador:</strong> ${evaluation.trainer</p>
+                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
                     <p><strong>Turno:</strong> ${evaluation.shift}</p>
                     <div class="criteria-results">
                         ${criteriaHtml}
@@ -1234,7 +1233,7 @@
             filteredLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             container.innerHTML = '';
-            filteredLogs.forEach((log, index) => {
+            filteredLogs.forEach((log, index) {
                 const logElement = document.createElement('div');
                 logElement.className = 'card';
                 logElement.style.marginBottom = '10px';
@@ -1262,7 +1261,7 @@
             // Ordenar logs por timestamp (mais recente primeiro)
             logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
-            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
+            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREinamentos\n';
             logText += '===========================================================\n\n';
             
             logs.forEach(log => {
@@ -1298,7 +1297,7 @@
                 classes[eval.class].push(eval);
             });
             
-            // Calcular médias e criar relatório
+            // Calcular médias and criar relatório
             for (const [className, classEvals] of Object.entries(classes)) {
                 const classSection = document.createElement('div');
                 classSection.className = 'card';
