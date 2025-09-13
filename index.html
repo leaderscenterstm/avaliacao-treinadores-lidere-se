@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Avaliação de Treinamentos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -277,6 +278,10 @@
             display: none;
         }
         
+        .trainer-only {
+            display: none;
+        }
+        
         .performance-badge {
             display: inline-block;
             padding: 0.35rem 0.7rem;
@@ -347,7 +352,11 @@
             <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
                 <h4>Credenciais de teste:</h4>
                 <p><strong>Admin:</strong> admin / admin123</p>
-                <p><strong>Usuário:</strong> user / user123</p>
+                <p><strong>Luma Mell:</strong> lumamell / luma123</p>
+                <p><strong>Ian Cunha:</strong> iancunha / ian123</p>
+                <p><strong>Susej Cristo:</strong> susejcristo / susej123</p>
+                <p><strong>Nathalie Benitah:</strong> nathaliebenitah / nathalie123</p>
+                <p><strong>Fellipe Figueira:</strong> fellipefigueira / fellipe123</p>
             </div>
         </div>
     </div>
@@ -369,6 +378,7 @@
                 <div class="tab" data-tab="evaluations">Minhas Avaliações</div>
                 <div class="tab admin-only" data-tab="dashboard">Dashboard</div>
                 <div class="tab admin-only" data-tab="all-evaluations">Todas as Avaliações</div>
+                <div class="tab admin-only" data-tab="logs">Registros de Log</div>
             </div>
             
             <div id="form-tab" class="tab-content active">
@@ -493,6 +503,21 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="logs-tab" class="tab-content">
+                <div class="card">
+                    <h2>Registros de Log do Sistema</h2>
+                    <div class="form-group">
+                        <label for="search-logs">Buscar:</label>
+                        <input type="text" id="search-logs" placeholder="Digite para filtrar logs...">
+                    </div>
+                    <button id="export-logs" class="btn-success">Exportar Logs</button>
+                    <button id="email-logs" class="btn-pdf">Enviar Logs por E-mail</button>
+                    <div id="logs-list">
+                        <p>Carregando logs do sistema...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -502,8 +527,42 @@
         
         // Dados de usuários (em um sistema real, isso viria de um backend seguro)
         const users = {
-            'admin': { password: 'admin123', role: 'admin', name: 'Administrador' },
-            'user': { password: 'user123', role: 'user', name: 'Usuário Padrão' }
+            'admin': { 
+                password: 'admin123', 
+                role: 'admin', 
+                name: 'Administrador',
+                email: 'admin@leaderscenter.com'
+            },
+            'lumamell': { 
+                password: 'luma123', 
+                role: 'trainer', 
+                name: 'Luma Mell',
+                email: 'luma@leaderscenter.com'
+            },
+            'iancunha': { 
+                password: 'ian123', 
+                role: 'trainer', 
+                name: 'Ian Cunha',
+                email: 'ian@leaderscenter.com'
+            },
+            'susejcristo': { 
+                password: 'susej123', 
+                role: 'trainer', 
+                name: 'Susej Cristo',
+                email: 'susej@leaderscenter.com'
+            },
+            'nathaliebenitah': { 
+                password: 'nathalie123', 
+                role: 'trainer', 
+                name: 'Nathalie Benitah',
+                email: 'nathalie@leaderscenter.com'
+            },
+            'fellipefigueira': { 
+                password: 'fellipe123', 
+                role: 'trainer', 
+                name: 'Fellipe Figueira',
+                email: 'fellipe@leaderscenter.com'
+            }
         };
         
         // Critérios de performance por tipo de turma
@@ -594,11 +653,65 @@
         let currentUser = null;
         let currentClassType = '';
         
+        // Função para registrar logs
+        function logAction(action, details = '') {
+            const timestamp = new Date().toISOString();
+            const logEntry = {
+                timestamp,
+                user: currentUser ? currentUser.username : 'unknown',
+                action,
+                details
+            };
+            
+            // Salvar no localStorage
+            let logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+            logs.push(logEntry);
+            localStorage.setItem('systemLogs', JSON.stringify(logs));
+            
+            // Gerar arquivo de log e enviar por e-mail
+            generateLogFileAndSendEmail(logEntry);
+            
+            return logEntry;
+        }
+        
+        // Função para gerar arquivo de log e enviar por e-mail
+        function generateLogFileAndSendEmail(logEntry) {
+            try {
+                // Formatar o log como texto
+                const logText = `TIMESTAMP: ${logEntry.timestamp}\nUSUÁRIO: ${logEntry.user}\nAÇÃO: ${logEntry.action}\nDETALHES: ${logEntry.details}\n\n`;
+                
+                // Em um ambiente real, aqui você enviaria o log por e-mail
+                // Como estamos em um ambiente de demonstração, vamos simular esse comportamento
+                console.log("Log registrado e enviado por e-mail (simulado):", logText);
+                
+                // Simular envio de e-mail (em produção, use uma API real)
+                if (typeof Email !== 'undefined') {
+                    Email.send({
+                        SecureToken: "your-token-here", // Em produção, use um token seguro
+                        To: 'leaderscenter.stm@gmail.com',
+                        From: 'system@leaderscenter.com',
+                        Subject: `Log do Sistema - ${new Date().toLocaleDateString('pt-BR')}`,
+                        Body: logText
+                    }).then(
+                        message => console.log("E-mail enviado com sucesso")
+                    );
+                }
+            } catch (error) {
+                console.error("Erro ao enviar log por e-mail:", error);
+            }
+        }
+        
         // Função para inicializar a aplicação
         function initApp() {
             // Inicializar armazenamento se não existir
             if (!localStorage.getItem('evaluations')) {
                 localStorage.setItem('evaluations', JSON.stringify([]));
+                logAction('SYSTEM_INIT', 'Sistema inicializado pela primeira vez');
+            }
+            
+            // Inicializar logs se não existir
+            if (!localStorage.getItem('systemLogs')) {
+                localStorage.setItem('systemLogs', JSON.stringify([]));
             }
             
             // Configurar data atual como padrão
@@ -622,11 +735,15 @@
                     currentUser = {
                         username: username,
                         role: users[username].role,
-                        name: users[username].name
+                        name: users[username].name,
+                        email: users[username].email
                     };
                     
                     // Salvar usuário atual no sessionStorage
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Registrar log de login
+                    logAction('USER_LOGIN', `Usuário ${username} fez login no sistema`);
                     
                     // Mostrar aplicação
                     document.getElementById('login-page').classList.add('hidden');
@@ -634,11 +751,21 @@
                     
                     // Atualizar interface com informações do usuário
                     document.getElementById('current-user').textContent = currentUser.name;
-                    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+                    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Treinador';
                     
                     // Mostrar/ocultar funcionalidades baseado no papel
                     if (currentUser.role === 'admin') {
                         document.querySelectorAll('.admin-only').forEach(el => {
+                            el.style.display = 'block';
+                        });
+                        document.querySelectorAll('.trainer-only').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    } else {
+                        document.querySelectorAll('.admin-only').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                        document.querySelectorAll('.trainer-only').forEach(el => {
                             el.style.display = 'block';
                         });
                     }
@@ -647,9 +774,11 @@
                     loadUserEvaluations();
                     if (currentUser.role === 'admin') {
                         loadAllEvaluations();
+                        loadSystemLogs();
                     }
                 } else {
                     alert('Usuário ou senha incorretos!');
+                    logAction('LOGIN_FAILED', `Tentativa de login com usuário ${username}`);
                 }
             });
             
@@ -660,13 +789,24 @@
                 document.getElementById('login-page').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
                 document.getElementById('current-user').textContent = currentUser.name;
-                document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+                document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Treinador';
                 
                 if (currentUser.role === 'admin') {
                     document.querySelectorAll('.admin-only').forEach(el => {
                         el.style.display = 'block';
                     });
+                    document.querySelectorAll('.trainer-only').forEach(el => {
+                        el.style.display = 'none';
+                    });
                     loadAllEvaluations();
+                    loadSystemLogs();
+                } else {
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    document.querySelectorAll('.trainer-only').forEach(el => {
+                        el.style.display = 'block';
+                    });
                 }
                 
                 loadUserEvaluations();
@@ -674,6 +814,7 @@
             
             // Configurar logout
             document.getElementById('logout-btn').addEventListener('click', function() {
+                logAction('USER_LOGOUT', `Usuário ${currentUser.username} fez logout`);
                 sessionStorage.removeItem('currentUser');
                 currentUser = null;
                 document.getElementById('login-page').classList.remove('hidden');
@@ -697,6 +838,9 @@
                     
                     // Carregar critérios de avaliação apropriados
                     loadPerformanceCriteria(currentClassType);
+                    
+                    // Registrar log
+                    logAction('CLASS_SELECTED', `Turma selecionada: ${selectedClass}`);
                 }
             });
             
@@ -723,7 +867,12 @@
                         loadUserEvaluations();
                     } else if (tabName === 'all-evaluations' && currentUser && currentUser.role === 'admin') {
                         loadAllEvaluations();
+                    } else if (tabName === 'logs' && currentUser && currentUser.role === 'admin') {
+                        loadSystemLogs();
                     }
+                    
+                    // Registrar log
+                    logAction('TAB_SWITCH', `Aba acessada: ${tabName}`);
                 });
             });
             
@@ -756,6 +905,7 @@
                 
                 if (!allCriteriaFilled) {
                     alert('Por favor, avalie todos os critérios antes de enviar.');
+                    logAction('EVALUATION_ERROR', 'Avaliação não preenchida completamente');
                     return;
                 }
                 
@@ -776,6 +926,9 @@
                 const evaluations = JSON.parse(localStorage.getItem('evaluations'));
                 evaluations.push(evaluation);
                 localStorage.setItem('evaluations', JSON.stringify(evaluations));
+                
+                // Registrar log
+                logAction('EVALUATION_SUBMITTED', `Avaliação registrada para a turma: ${evaluation.class}`);
                 
                 // Gerar PDF
                 generateEvaluationPDF(evaluation);
@@ -823,8 +976,12 @@
                 if (weekEvaluations.length === 0) {
                     document.getElementById('report-results').classList.add('hidden');
                     alert('Nenhuma avaliação encontrada para a semana selecionada.');
+                    logAction('REPORT_GENERATED', `Relatório vazio para a semana ${weekValue}`);
                     return;
                 }
+                
+                // Registrar log
+                logAction('REPORT_GENERATED', `Relatório gerado para a semana ${weekValue} com ${weekEvaluations.length} avaliações`);
                 
                 // Gerar relatório
                 generateReport(weekEvaluations, weekValue);
@@ -834,6 +991,21 @@
             // Configurar busca para todas as avaliações (admin)
             document.getElementById('search-evaluations').addEventListener('input', function() {
                 loadAllEvaluations(this.value);
+            });
+            
+            // Configurar busca para logs (admin)
+            document.getElementById('search-logs').addEventListener('input', function() {
+                loadSystemLogs(this.value);
+            });
+            
+            // Configurar exportação de logs
+            document.getElementById('export-logs').addEventListener('click', function() {
+                exportLogsToFile();
+            });
+            
+            // Configurar envio de logs por e-mail
+            document.getElementById('email-logs').addEventListener('click', function() {
+                emailLogs();
             });
         }
         
@@ -949,6 +1121,7 @@
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
                     generateEvaluationPDF(userEvaluations[index]);
+                    logAction('PDF_GENERATED', `PDF gerado para avaliação ${index}`);
                 });
             });
         }
@@ -1021,8 +1194,139 @@
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
                     generateEvaluationPDF(filteredEvaluations[index]);
+                    logAction('PDF_GENERATED', `PDF gerado para avaliação ${index} (admin)`);
                 });
             });
+        }
+        
+        // Função para carregar logs do sistema (admin)
+        function loadSystemLogs(searchTerm = '') {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            
+            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+            
+            const container = document.getElementById('logs-list');
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<p>Nenhum registro de log encontrado.</p>';
+                return;
+            }
+            
+            // Filtrar logs se houver termo de busca
+            let filteredLogs = logs;
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredLogs = logs.filter(log => 
+                    log.user.toLowerCase().includes(term) ||
+                    log.action.toLowerCase().includes(term) ||
+                    log.details.toLowerCase().includes(term) ||
+                    log.timestamp.toLowerCase().includes(term)
+                );
+            }
+            
+            // Ordenar logs por timestamp (mais recente primeiro)
+            filteredLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            container.innerHTML = '';
+            filteredLogs.forEach((log, index) => {
+                const logElement = document.createElement('div');
+                logElement.className = 'card';
+                logElement.style.marginBottom = '10px';
+                
+                logElement.innerHTML = `
+                    <p><strong>Data/Hora:</strong> ${formatDateTime(log.timestamp)}</p>
+                    <p><strong>Usuário:</strong> ${log.user}</p>
+                    <p><strong>Ação:</strong> ${log.action}</p>
+                    <p><strong>Detalhes:</strong> ${log.details}</p>
+                `;
+                
+                container.appendChild(logElement);
+            });
+        }
+        
+        // Função para exportar logs para arquivo de texto
+        function exportLogsToFile() {
+            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+            
+            if (logs.length === 0) {
+                alert('Nenhum registro de log para exportar.');
+                return;
+            }
+            
+            // Ordenar logs por timestamp (mais recente primeiro)
+            logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
+            logText += '===========================================================\n\n';
+            
+            logs.forEach(log => {
+                logText += `TIMESTAMP: ${formatDateTime(log.timestamp)}\n`;
+                logText += `USUÁRIO: ${log.user}\n`;
+                logText += `AÇÃO: ${log.action}\n`;
+                logText += `DETALHES: ${log.details}\n`;
+                logText += '----------------------------------------\n\n';
+            });
+            
+            // Criar blob e fazer download
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `logs-sistema-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            
+            logAction('LOGS_EXPORTED', 'Logs do sistema exportados para arquivo de texto');
+            alert('Logs exportados com sucesso!');
+        }
+        
+        // Função para enviar logs por e-mail
+        function emailLogs() {
+            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+            
+            if (logs.length === 0) {
+                alert('Nenhum registro de log para enviar.');
+                return;
+            }
+            
+            // Ordenar logs por timestamp (mais recente primeiro)
+            logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
+            logText += '===========================================================\n\n';
+            
+            logs.forEach(log => {
+                logText += `TIMESTAMP: ${formatDateTime(log.timestamp)}\n`;
+                logText += `USUÁRIO: ${log.user}\n`;
+                logText += `AÇÃO: ${log.action}\n`;
+                logText += `DETALHES: ${log.details}\n`;
+                logText += '----------------------------------------\n\n';
+            });
+            
+            // Em um ambiente real, aqui você enviaria o e-mail
+            // Como estamos em um ambiente de demonstração, vamos simular esse comportamento
+            try {
+                if (typeof Email !== 'undefined') {
+                    Email.send({
+                        SecureToken: "your-token-here", // Em produção, use um token seguro
+                        To: 'leaderscenter.stm@gmail.com',
+                        From: 'system@leaderscenter.com',
+                        Subject: `Logs do Sistema - ${new Date().toLocaleDateString('pt-BR')}`,
+                        Body: logText
+                    }).then(
+                        message => {
+                            alert('Logs enviados por e-mail com sucesso!');
+                            logAction('LOGS_EMAILED', 'Logs do sistema enviados por e-mail');
+                        }
+                    );
+                } else {
+                    // Fallback para demonstração
+                    alert('Em um ambiente real, os logs seriam enviados para leaderscenter.stm@gmail.com');
+                    console.log("Conteúdo do e-mail:", logText);
+                    logAction('LOGS_EMAILED', 'Logs do sistema enviados por e-mail (simulado)');
+                }
+            } catch (error) {
+                console.error("Erro ao enviar e-mail:", error);
+                alert('Erro ao enviar e-mail. Verifique o console para mais detalhes.');
+            }
         }
         
         // Função para gerar relatório
@@ -1217,6 +1521,12 @@
                 return date.toISOString().split('T')[0];
             }
             return date.toLocaleDateString('pt-BR');
+        }
+        
+        // Função para formatar data e hora
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('pt-BR');
         }
         
         // Inicializar a aplicação quando o documento estiver carregado
