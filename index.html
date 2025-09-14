@@ -3,268 +3,1209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso ao Sistema - Gestão Pedagógica</title>
+    <title>Sistema de Avaliação de Performance</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --gray: #7f8c8d;
+            --light-gray: #bdc3c7;
+        }
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
         }
         
         .container {
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
-        .header {
-            background: linear-gradient(to right, #2980b9, #2c3e50);
+        header {
+            background: linear-gradient(135deg, var(--secondary), var(--primary-dark));
             color: white;
-            padding: 25px;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
-        .header h1 {
-            font-size: 26px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .content h2 {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 22px;
-        }
-        
-        .perfil-options {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .perfil-btn {
-            padding: 18px;
-            background: linear-gradient(to right, #3498db, #2980b9);
-            border: none;
+        .card {
+            background: white;
             border-radius: 10px;
-            text-align: center;
-            font-size: 18px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
         }
         
-        .perfil-btn.treinador {
-            background: linear-gradient(to right, #2ecc71, #27ae60);
-        }
-        
-        .perfil-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .perfil-btn:active {
-            transform: translateY(1px);
-        }
-        
-        .login-form {
-            display: none;
-            animation: fadeIn 0.5s ease;
+        h1, h2, h3 {
+            color: var(--secondary);
         }
         
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 1.5rem;
         }
         
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-weight: 500;
-            font-size: 16px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
         }
         
-        .form-group input {
+        select, input, textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
         
-        .form-group input:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        
-        .btn-group {
-            display: flex;
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 15px;
         }
         
-        .btn {
-            padding: 15px 20px;
-            border: none;
+        .criteria-card {
+            border: 1px solid #eee;
             border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        .criteria-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .criteria-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .rating-options {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .rating-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            transition: all 0.2s;
+        }
+        
+        .rating-option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .rating-option input[type="radio"] {
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-        
-        .btn-cancel {
-            background-color: #e9ecef;
-            color: #495057;
-        }
-        
-        .btn-cancel:hover {
-            background-color: #dee2e6;
+            transition: all 0.3s;
         }
         
         .btn-primary {
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background-color: var(--primary);
             color: white;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(to right, #2980b9, #2573a7);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+            background-color: var(--primary-dark);
         }
         
-        .back-btn {
-            display: block;
-            text-align: center;
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .evaluation-container {
             margin-top: 20px;
-            color: #3498db;
-            cursor: pointer;
-            font-weight: 500;
         }
         
-        .back-btn:hover {
-            text-decoration: underline;
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .active {
-            display: block;
-        }
-        
-        .footer {
+        footer {
             text-align: center;
+            margin-top: 40px;
             padding: 20px;
-            color: #6c757d;
-            font-size: 14px;
-            border-top: 1px solid #e9ecef;
+            color: var(--gray);
+        }
+        
+        /* Login screen */
+        .login-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .trainer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .trainer-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .trainer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .admin-login {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: 300px;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .rating-options {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .trainer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Sistema de Gestão Pedagógica</h1>
-            <p>Selecione seu perfil para acessar o sistema</p>
-        </div>
-        
-        <div class="content">
-            <h2>Como você deseja acessar?</h2>
+    <div id="login-screen" class="container">
+        <div class="login-container">
+            <header>
+                <h1>Sistema de Avaliação de Performance</h1>
+                <p>Selecione seu perfil para acessar o sistema</p>
+            </header>
             
-            <div class="perfil-options" id="perfilOptions">
-                <div class="perfil-btn" onclick="showLoginForm('coord')">
-                    Acesso da Coordenação
+            <div class="card">
+                <h2>Acesso Treinadores</h2>
+                <div class="trainer-grid">
+                    <button class="trainer-btn" data-trainer="Luma Mell">Luma Mell</button>
+                    <button class="trainer-btn" data-trainer="Ian Cunha">Ian Cunha</button>
+                    <button class="trainer-btn" data-trainer="Susej Cristo">Susej Cristo</button>
+                    <button class="trainer-btn" data-trainer="Nathalie Benitah">Nathalie Benitah</button>
+                    <button class="trainer-btn" data-trainer="Fellipe Figueira">Fellipe Figueira</button>
                 </div>
-                <div class="perfil-btn treinador" onclick="acessarComoTreinador()">
-                    Acesso do Treinador
+                
+                <div class="admin-login">
+                    <h2>Acesso Coordenação</h2>
+                    <div class="form-group">
+                        <label for="admin-password">Senha:</label>
+                        <input type="password" id="admin-password" placeholder="Digite a senha de administrador">
+                    </div>
+                    <button id="admin-login-btn" class="btn btn-primary">Acessar Coordenação</button>
                 </div>
             </div>
-            
-            <div class="login-form" id="loginForm">
-                <h2 id="formTitle">Acesso da Coordenação</h2>
+        </div>
+    </div>
+    
+    <div id="app-container" class="container hidden">
+        <header>
+            <h1>Avaliação de Performance da Turma</h1>
+            <p>Usuário: <span id="current-user">Treinador</span> | <a href="#" id="logout-btn">Sair</a></p>
+        </header>
+        
+        <div id="trainer-interface">
+            <div class="card">
+                <h2>Informações Básicas</h2>
+                <div class="form-group">
+                    <label for="trainer">Treinador:</label>
+                    <select id="trainer" required>
+                        <option value="">Selecione o treinador</option>
+                        <option value="Luma Mell">Luma Mell</option>
+                        <option value="Ian Cunha">Ian Cunha</option>
+                        <option value="Susej Cristo">Susej Cristo</option>
+                        <option value="Nathalie Benitah">Nathalie Benitah</option>
+                        <option value="Fellipe Figueira">Fellipe Figueira</option>
+                    </select>
+                </div>
                 
                 <div class="form-group">
-                    <label for="senha" id="labelSenha">Digite a senha de administrador para continuar:</label>
-                    <input type="password" id="senha" placeholder="Senha de administrador">
+                    <label for="axis">Eixo:</label>
+                    <select id="axis" required>
+                        <option value="">Selecione o eixo</option>
+                        <option value="Inteligência Emocional">Inteligência Emocional</option>
+                        <option value="Liderança & Business">Liderança & Business</option>
+                        <option value="Inglês">Inglês</option>
+                    </select>
                 </div>
                 
-                <div class="btn-group">
-                    <button class="btn btn-cancel" onclick="goBack()">Cancelar</button>
-                    <button class="btn btn-primary" onclick="acessarCoordenacao()">Acessar</button>
+                <div class="form-group">
+                    <label for="date">Data:</label>
+                    <input type="date" id="date" required>
                 </div>
                 
-                <div class="back-btn" onclick="goBack()">← Voltar para seleção de perfil</div>
+                <div class="form-group">
+                    <label for="shift">Turno:</label>
+                    <select id="shift" required>
+                        <option value="">Selecione o turno</option>
+                        <option value="Manhã">Manhã</option>
+                        <option value="Tarde">Tarde</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="class">Turma:</label>
+                    <select id="class" required>
+                        <option value="">Selecione a turma</option>
+                        <option value="Foundation Ter/Qui">Foundation Ter/Qui</option>
+                        <option value="Foundation Seg/Qua">Foundation Seg/Qua</option>
+                        <option value="Discovery Ter/Qui">Discovery Ter/Qui</option>
+                        <option value="Discovery Seg/Qua">Discovery Seg/Qua</option>
+                        <option value="Challenge Ter/Qui">Challenge Ter/Qui</option>
+                        <option value="Challenge Seg/Qua">Challenge Seg/Qua</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="evaluation-container" class="evaluation-container hidden">
+                <div class="card">
+                    <h2>Avaliação de Performance</h2>
+                    <div id="criteria-container" class="criteria-grid">
+                        <!-- Os critérios serão inseridos aqui via JavaScript -->
+                    </div>
+                    
+                    <div class="actions">
+                        <button id="save-btn" class="btn btn-primary">Salvar Avaliação</button>
+                        <button id="weekly-report-btn" class="btn btn-success">Gerar Relatório Semanal</button>
+                        <button id="reset-btn" class="btn btn-danger">Limpar Formulário</button>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="footer">
-            &copy; 2025 Sistema de Gestão Pedagógica. Todos os direitos reservados.
+        <div id="admin-interface" class="hidden">
+            <div class="card">
+                <h2>Dashboard de Coordenação</h2>
+                
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="report-start-date">Data Início:</label>
+                        <input type="date" id="report-start-date">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-end-date">Data Fim:</label>
+                        <input type="date" id="report-end-date">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-trainer">Treinador:</label>
+                        <select id="report-trainer">
+                            <option value="">Todos os treinadores</option>
+                            <option value="Luma Mell">Luma Mell</option>
+                            <option value="Ian Cunha">Ian Cunha</option>
+                            <option value="Susej Cristo">Susej Cristo</option>
+                            <option value="Nathalie Benitah">Nathalie Benitah</option>
+                            <option value="Fellipe Figueira">Fellipe Figueira</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-class">Turma:</label>
+                        <select id="report-class">
+                            <option value="">Todas as turmas</option>
+                            <option value="Foundation Ter/Qui">Foundation Ter/Qui</option>
+                            <option value="Foundation Seg/Qua">Foundation Seg/Qua</option>
+                            <option value="Discovery Ter/Qui">Discovery Ter/Qui</option>
+                            <option value="Discovery Seg/Qua">Discovery Seg/Qua</option>
+                            <option value="Challenge Ter/Qui">Challenge Ter/Qui</option>
+                            <option value="Challenge Seg/Qua">Challenge Seg/Qua</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button id="generate-report-btn" class="btn btn-primary">Gerar Relatório Personalizado</button>
+                    <button id="view-logs-btn" class="btn btn-warning">Visualizar Logs do Sistema</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Desempenho por Turma</h3>
+                    <canvas id="classPerformanceChart"></canvas>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Desempenho por Eixo</h3>
+                    <canvas id="axisPerformanceChart"></canvas>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Evolução Temporal</h3>
+                    <canvas id="timelineChart"></canvas>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Distribuição de Avaliações</h3>
+                    <canvas id="ratingDistributionChart"></canvas>
+                </div>
+            </div>
+            
+            <div id="logs-container" class="card hidden">
+                <h2>Logs do Sistema</h2>
+                <div class="form-group">
+                    <label for="log-filter">Filtrar por usuário:</label>
+                    <select id="log-filter">
+                        <option value="">Todos os usuários</option>
+                        <option value="Luma Mell">Luma Mell</option>
+                        <option value="Ian Cunha">Ian Cunha</option>
+                        <option value="Susej Cristo">Susej Cristo</option>
+                        <option value="Nathalie Benitah">Nathalie Benitah</option>
+                        <option value="Fellipe Figueira">Fellipe Figueira</option>
+                        <option value="Coordenação">Coordenação</option>
+                    </select>
+                </div>
+                
+                <div class="log-container" id="log-entries">
+                    <!-- Log entries will be inserted here -->
+                </div>
+            </div>
         </div>
+        
+        <footer>
+            <p>Sistema de Avaliação de Performance &copy; 2023</p>
+        </footer>
     </div>
 
     <script>
-        function showLoginForm(perfil) {
-            document.getElementById('perfilOptions').style.display = 'none';
-            document.getElementById('loginForm').classList.add('active');
-        }
-        
-        function acessarComoTreinador() {
-            // Acesso direto sem senha para treinadores
-            alert('Acesso como treinador realizado com sucesso! Redirecionando...');
-            // window.location.href = 'painel-treinador.html'; // Redirecionamento real
-        }
-        
-        function acessarCoordenacao() {
-            const senha = document.getElementById('senha').value;
-            if (!senha) {
-                alert('Por favor, digite a senha de administrador.');
-                return;
+        document.addEventListener('DOMContentLoaded', function() {
+            // ========== CONFIGURAÇÃO INICIAL ==========
+            // Definir data atual como padrão
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+            
+            // Definir período padrão para relatórios (últimos 7 dias)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            const startYYYY = oneWeekAgo.getFullYear();
+            const startMM = String(oneWeekAgo.getMonth() + 1).padStart(2, '0');
+            const startDD = String(oneWeekAgo.getDate()).padStart(2, '0');
+            
+            document.getElementById('report-start-date').value = `${startYYYY}-${startMM}-${startDD}`;
+            document.getElementById('report-end-date').value = `${yyyy}-${mm}-${dd}`;
+            
+            // Critérios por tipo de turma
+            const criteria = {
+                'Foundation': [
+                    "A turma participou ativamente das atividades propostas?",
+                    "Demonstrou compreender os conceitos de forma adequada para a idade?",
+                    "Conseguiu colocar em prática a atividade/jogo da aula como grupo?",
+                    "Interagiu bem entre si durante a experiência?",
+                    "Manteve postura e atitude compatíveis (escuta, espera, respeito)?"
+                ],
+                'Discovery': [
+                    "A turma manteve bom nível de atenção e engajamento nas atividades?",
+                    "Demonstrou domínio básico do conteúdo trabalhado em aula?",
+                    "Aplicou o que aprendeu durante a experiência prática como grupo?",
+                    "Colaborou e se entrosou no desenvolvimento das atividades?",
+                    "Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?"
+                ],
+                'Challenge': [
+                    "A turma se manteve engajada e atenta ao longo da aula?",
+                    "Apresentou domínio do conteúdo de forma clara e consistente?",
+                    "Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?",
+                    "Atuou em cooperação e liderança durante as atividades?",
+                    "Demonstrou responsabilidade e maturidade no comportamento coletivo?"
+                ]
+            };
+            
+            // Elementos do DOM
+            const loginScreen = document.getElementById('login-screen');
+            const appContainer = document.getElementById('app-container');
+            const trainerInterface = document.getElementById('trainer-interface');
+            const adminInterface = document.getElementById('admin-interface');
+            const currentUserSpan = document.getElementById('current-user');
+            const logoutBtn = document.getElementById('logout-btn');
+            const classSelect = document.getElementById('class');
+            const evaluationContainer = document.getElementById('evaluation-container');
+            const criteriaContainer = document.getElementById('criteria-container');
+            const saveBtn = document.getElementById('save-btn');
+            const weeklyReportBtn = document.getElementById('weekly-report-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const generateReportBtn = document.getElementById('generate-report-btn');
+            const viewLogsBtn = document.getElementById('view-logs-btn');
+            const logsContainer = document.getElementById('logs-container');
+            const logFilter = document.getElementById('log-filter');
+            const logEntries = document.getElementById('log-entries');
+            
+            // Estado da aplicação
+            let currentUser = null;
+            let userRole = null;
+            
+            // ========== EVENT LISTENERS ==========
+            // Login dos treinadores
+            document.querySelectorAll('.trainer-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentUser = this.getAttribute('data-trainer');
+                    userRole = 'trainer';
+                    login();
+                });
+            });
+            
+            // Login da coordenação
+            document.getElementById('admin-login-btn').addEventListener('click', function() {
+                const password = document.getElementById('admin-password').value;
+                // SENHA DA COORDENAÇÃO: admin123
+                if (password === 'admin123') {
+                    currentUser = 'Coordenação';
+                    userRole = 'admin';
+                    login();
+                } else {
+                    alert('Senha incorreta. Tente novamente.');
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Quando a turma é selecionada, mostrar os critérios apropriados
+            classSelect.addEventListener('change', function() {
+                const selectedClass = this.value;
+                if (selectedClass) {
+                    evaluationContainer.classList.remove('hidden');
+                    
+                    // Determinar o tipo de turma (Foundation, Discovery, Challenge)
+                    let classType = '';
+                    if (selectedClass.includes('Foundation')) classType = 'Foundation';
+                    else if (selectedClass.includes('Discovery')) classType = 'Discovery';
+                    else if (selectedClass.includes('Challenge')) classType = 'Challenge';
+                    
+                    // Gerar os critérios de avaliação
+                    criteriaContainer.innerHTML = '';
+                    criteria[classType].forEach((criterion, index) => {
+                        const criterionCard = document.createElement('div');
+                        criterionCard.className = 'criteria-card';
+                        
+                        criterionCard.innerHTML = `
+                            <div class="criteria-title">${index + 1}. ${criterion}</div>
+                            <div class="rating-options">
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-excellent" name="criterion-${index}" value="Excelente" required>
+                                    <label for="criterion-${index}-excellent">Excelente</label>
+                                </div>
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-good" name="criterion-${index}" value="Bom">
+                                    <label for="criterion-${index}-good">Bom</label>
+                                </div>
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-improve" name="criterion-${index}" value="A melhorar">
+                                    <label for="criterion-${index}-improve">A melhorar</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="obs-${index}">Observações:</label>
+                                <textarea id="obs-${index}" rows="2"></textarea>
+                            </div>
+                        `;
+                        
+                        criteriaContainer.appendChild(criterionCard);
+                    });
+                } else {
+                    evaluationContainer.classList.add('hidden');
+                }
+            });
+            
+            // Salvar avaliação
+            saveBtn.addEventListener('click', function() {
+                // Validar formulário
+                const trainer = document.getElementById('trainer').value;
+                const axis = document.getElementById('axis').value;
+                const date = document.getElementById('date').value;
+                const shift = document.getElementById('shift').value;
+                const classValue = document.getElementById('class').value;
+                
+                if (!trainer || !axis || !date || !shift || !classValue) {
+                    alert('Por favor, preencha todas as informações básicas.');
+                    return;
+                }
+                
+                // Coletar avaliações dos critérios
+                const evaluations = [];
+                const classType = classValue.includes('Foundation') ? 'Foundation' : 
+                                 classValue.includes('Discovery') ? 'Discovery' : 'Challenge';
+                
+                criteria[classType].forEach((criterion, index) => {
+                    const rating = document.querySelector(`input[name="criterion-${index}"]:checked`);
+                    const observations = document.getElementById(`obs-${index}`).value;
+                    
+                    if (!rating) {
+                        alert(`Por favor, avalie o critério: ${criterion}`);
+                        return;
+                    }
+                    
+                    evaluations.push({
+                        criterion: criterion,
+                        rating: rating.value,
+                        observations: observations
+                    });
+                });
+                
+                // Criar objeto de avaliação
+                const evaluation = {
+                    trainer: trainer,
+                    axis: axis,
+                    date: date,
+                    shift: shift,
+                    class: classValue,
+                    evaluations: evaluations
+                };
+                
+                // Salvar no localStorage
+                saveEvaluation(evaluation);
+                
+                // Registrar no log
+                logAction(`${trainer} registrou uma avaliação para a turma ${classValue} (${date})`);
+                
+                // Gerar PDF
+                generatePDF(evaluation);
+                
+                alert('Avaliação salva com sucesso e PDF gerado!');
+            });
+            
+            // Gerar relatório semanal
+            weeklyReportBtn.addEventListener('click', function() {
+                generateWeeklyReport();
+            });
+            
+            // Limpar formulário
+            resetBtn.addEventListener('click', function() {
+                document.getElementById('trainer').value = '';
+                document.getElementById('axis').value = '';
+                document.getElementById('shift').value = '';
+                document.getElementById('class').value = '';
+                evaluationContainer.classList.add('hidden');
+                
+                // Definir data atual novamente
+                document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+            });
+            
+            // Gerar relatório personalizado (admin)
+            generateReportBtn.addEventListener('click', function() {
+                generateCustomReport();
+            });
+            
+            // Visualizar logs (admin)
+            viewLogsBtn.addEventListener('click', function() {
+                logsContainer.classList.remove('hidden');
+                loadLogs();
+            });
+            
+            // Filtrar logs (admin)
+            logFilter.addEventListener('change', function() {
+                loadLogs(this.value);
+            });
+            
+            // ========== FUNÇÕES PRINCIPAIS ==========
+            function login() {
+                loginScreen.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                currentUserSpan.textContent = currentUser;
+                
+                if (userRole === 'admin') {
+                    trainerInterface.classList.add('hidden');
+                    adminInterface.classList.remove('hidden');
+                    initializeAdminDashboard();
+                    logAction('Acesso ao painel de coordenação');
+                } else {
+                    trainerInterface.classList.remove('hidden');
+                    adminInterface.classList.add('hidden');
+                    document.getElementById('trainer').value = currentUser;
+                    logAction('Login no sistema');
+                }
             }
             
-            // Aqui viria a lógica de autenticação real
-            if (senha === "admin123") { // Senha de exemplo
-                alert('Acesso da coordenação realizado com sucesso! Redirecionando...');
-                // window.location.href = 'painel-coordenacao.html'; // Redirecionamento real
-            } else {
-                alert('Senha incorreta. Tente novamente.');
+            function logout() {
+                logAction('Logout do sistema');
+                currentUser = null;
+                userRole = null;
+                appContainer.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                document.getElementById('admin-password').value = '';
             }
-        }
-        
-        function goBack() {
-            document.getElementById('loginForm').classList.remove('active');
-            document.getElementById('perfilOptions').style.display = 'flex';
-            document.getElementById('senha').value = '';
-        }
+            
+            function logAction(action) {
+                const timestamp = new Date().toISOString();
+                let logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+                
+                logs.push({
+                    user: currentUser,
+                    action: action,
+                    timestamp: timestamp
+                });
+                
+                localStorage.setItem('systemLogs', JSON.stringify(logs));
+            }
+            
+            function loadLogs(filterUser = '') {
+                const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+                logEntries.innerHTML = '';
+                
+                const filteredLogs = filterUser ? 
+                    logs.filter(log => log.user === filterUser) : 
+                    logs;
+                
+                if (filteredLogs.length === 0) {
+                    logEntries.innerHTML = '<div class="log-entry">Nenhum registro encontrado</div>';
+                    return;
+                }
+                
+                // Mostrar logs mais recentes primeiro
+                filteredLogs.reverse().forEach(log => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    
+                    const date = new Date(log.timestamp);
+                    const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                    
+                    logEntry.innerHTML = `
+                        <strong>${log.user}</strong> - ${formattedDate}<br>
+                        ${log.action}
+                    `;
+                    
+                    logEntries.appendChild(logEntry);
+                });
+            }
+            
+            function initializeAdminDashboard() {
+                // Inicializar gráficos do dashboard
+                initializeCharts();
+            }
+            
+            function initializeCharts() {
+                // Dados de exemplo para os gráficos
+                // Em uma aplicação real, esses dados viriam das avaliações salvas
+                const classData = {
+                    labels: ['Foundation', 'Discovery', 'Challenge'],
+                    datasets: [{
+                        label: 'Desempenho Médio',
+                        data: [85, 78, 92],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(52, 152, 219)',
+                            'rgb(46, 204, 113)',
+                            'rgb(155, 89, 182)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const axisData = {
+                    labels: ['Inteligência Emocional', 'Liderança & Business', 'Inglês'],
+                    datasets: [{
+                        label: 'Desempenho por Eixo',
+                        data: [82, 88, 75],
+                        backgroundColor: [
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(230, 126, 34, 0.7)',
+                            'rgba(52, 73, 94, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(241, 196, 15)',
+                            'rgb(230, 126, 34)',
+                            'rgb(52, 73, 94)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const timelineData = {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+                    datasets: [{
+                        label: 'Desempenho Diário',
+                        data: [80, 85, 82, 88, 90],
+                        fill: false,
+                        borderColor: 'rgb(52, 152, 219)',
+                        tension: 0.1
+                    }]
+                };
+                
+                const ratingData = {
+                    labels: ['Excelente', 'Bom', 'A melhorar'],
+                    datasets: [{
+                        label: 'Distribuição de Avaliações',
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(46, 204, 113)',
+                            'rgb(52, 152, 219)',
+                            'rgb(231, 76, 60)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                // Renderizar gráficos
+                new Chart(document.getElementById('classPerformanceChart'), {
+                    type: 'bar',
+                    data: classData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('axisPerformanceChart'), {
+                    type: 'pie',
+                    data: axisData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+                
+                new Chart(document.getElementById('timelineChart'), {
+                    type: 'line',
+                    data: timelineData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('ratingDistributionChart'), {
+                    type: 'doughnut',
+                    data: ratingData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+            
+            // Função para salvar avaliação no localStorage
+            function saveEvaluation(evaluation) {
+                let evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                evaluations.push(evaluation);
+                localStorage.setItem('classEvaluations', JSON.stringify(evaluations));
+            }
+            
+            // Função para gerar PDF da avaliação
+            function generatePDF(evaluation) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.text('AVALIAÇÃO DE PERFORMANCE DA TURMA', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Data: ${evaluation.date} | Turno: ${evaluation.shift} | Turma: ${evaluation.class}`, 105, 22, { align: 'center' });
+                doc.text(`Treinador: ${evaluation.trainer} | Eixo: ${evaluation.axis}`, 105, 29, { align: 'center' });
+                
+                // Linha divisória
+                doc.line(10, 35, 200, 35);
+                
+                // Título da tabela
+                doc.setFontSize(14);
+                doc.text('RESULTADOS DA AVALIAÇÃO', 105, 45, { align: 'center' });
+                
+                // Preparar dados da tabela
+                const tableData = [];
+                evaluation.evaluations.forEach((item, index) => {
+                    tableData.push([
+                        index + 1,
+                        item.criterion,
+                        item.rating,
+                        item.observations || 'Nenhuma'
+                    ]);
+                });
+                
+                // Gerar tabela
+                doc.autoTable({
+                    startY: 50,
+                    head: [['#', 'Critério', 'Avaliação', 'Observações']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [44, 62, 80]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    },
+                    margin: { top: 50 },
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3,
+                        overflow: 'linebreak'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 10 },
+                        1: { cellWidth: 80 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 50 }
+                    }
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Sistema de Avaliação de Performance', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `Avaliacao_${evaluation.class}_${evaluation.date.replace(/-/g, '')}.pdf`;
+                doc.save(fileName);
+            }
+            
+            // Função para gerar relatório semanal
+            function generateWeeklyReport() {
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                if (evaluations.length === 0) {
+                    alert('Não há avaliações salvas para gerar o relatório.');
+                    return;
+                }
+                
+                // Obter data atual e calcular início da semana (segunda-feira)
+                const today = new Date();
+                const dayOfWeek = today.getDay(); // 0 (domingo) a 6 (sábado)
+                const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - diffToMonday);
+                
+                // Formatar datas para comparação
+                const formatDate = (date) => {
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                };
+                
+                const mondayStr = formatDate(monday);
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                const sundayStr = formatDate(sunday);
+                
+                // Filtrar avaliações da semana atual
+                const weeklyEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    return evalDate >= new Date(mondayStr) && evalDate <= new Date(sundayStr);
+                });
+                
+                if (weeklyEvaluations.length === 0) {
+                    alert(`Não há avaliações para a semana de ${mondayStr} a ${sundayStr}.`);
+                    return;
+                }
+                
+                // Gerar PDF do relatório semanal
+                generateCustomReportPDF(weeklyEvaluations, `Relatório Semanal (${mondayStr} a ${sundayStr})`);
+                logAction(`Relatório semanal gerado para o período ${mondayStr} a ${sundayStr}`);
+            }
+            
+            // Função para gerar relatório personalizado (admin)
+            function generateCustomReport() {
+                const startDate = document.getElementById('report-start-date').value;
+                const endDate = document.getElementById('report-end-date').value;
+                const trainerFilter = document.getElementById('report-trainer').value;
+                const classFilter = document.getElementById('report-class').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Por favor, selecione um período para o relatório.');
+                    return;
+                }
+                
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                // Filtrar avaliações conforme critérios
+                const filteredEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    const meetsDate = evalDate >= new Date(startDate) && evalDate <= new Date(endDate);
+                    const meetsTrainer = !trainerFilter || eval.trainer === trainerFilter;
+                    const meetsClass = !classFilter || eval.class === classFilter;
+                    
+                    return meetsDate && meetsTrainer && meetsClass;
+                });
+                
+                if (filteredEvaluations.length === 0) {
+                    alert('Não há avaliações que correspondam aos critérios selecionados.');
+                    return;
+                }
+                
+                generateCustomReportPDF(filteredEvaluations, `Relatório Personalizado (${startDate} a ${endDate})`);
+                logAction(`Relatório personalizado gerado com filtros: ${trainerFilter || 'Todos'}, ${classFilter || 'Todas'}`);
+            }
+            
+            // Função para gerar PDF de relatório personalizado
+            function generateCustomReportPDF(evaluations, title) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.text(title, 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Período: ${evaluations[0].date} a ${evaluations[evaluations.length - 1].date}`, 105, 22, { align: 'center' });
+                
+                // Linha divisória
+                doc.line(10, 30, 200, 30);
+                
+                // Resumo estatístico
+                let excellentCount = 0;
+                let goodCount = 0;
+                let improveCount = 0;
+                let totalCriteria = 0;
+                
+                evaluations.forEach(eval => {
+                    eval.evaluations.forEach(criterion => {
+                        totalCriteria++;
+                        if (criterion.rating === 'Excelente') excellentCount++;
+                        else if (criterion.rating === 'Bom') goodCount++;
+                        else if (criterion.rating === 'A melhorar') improveCount++;
+                    });
+                });
+                
+                const excellentPercent = Math.round((excellentCount / totalCriteria) * 100);
+                const goodPercent = Math.round((goodCount / totalCriteria) * 100);
+                const improvePercent = Math.round((improveCount / totalCriteria) * 100);
+                
+                doc.setFontSize(14);
+                doc.text('RESUMO ESTATÍSTICO', 105, 40, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text(`Total de Avaliações: ${evaluations.length}`, 20, 50);
+                doc.text(`Total de Critérios Avaliados: ${totalCriteria}`, 20, 58);
+                
+                doc.setFontSize(12);
+                doc.text('Distribuição de Avaliações:', 20, 70);
+                
+                // Gráfico de pizza simples (usando formas básicas)
+                const centerX = 160;
+                const centerY = 70;
+                const radius = 20;
+                
+                // Excelente (verde)
+                doc.setFillColor(46, 204, 113);
+                doc.circle(centerX, centerY, radius, 'F');
+                
+                // Bom (azul) - sobreposto parcialmente
+                doc.setFillColor(52, 152, 219);
+                doc.circle(centerX + 5, centerY, radius, 'F');
+                
+                // A melhorar (vermelho) - sobreposto parcialmente
+                doc.setFillColor(231, 76, 60);
+                doc.circle(centerX + 10, centerY, radius, 'F');
+                
+                // Legenda
+                doc.setFontSize(10);
+                doc.setTextColor(46, 204, 113);
+                doc.text(`Excelente: ${excellentPercent}%`, 20, 80);
+                doc.setTextColor(52, 152, 219);
+                doc.text(`Bom: ${goodPercent}%`, 20, 87);
+                doc.setTextColor(231, 76, 60);
+                doc.text(`A melhorar: ${improvePercent}%`, 20, 94);
+                doc.setTextColor(0, 0, 0);
+                
+                // Detalhes das avaliações
+                let startY = 110;
+                
+                evaluations.forEach((eval, index) => {
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setDrawColor(44, 62, 80);
+                    doc.setFillColor(236, 240, 241);
+                    doc.rect(10, startY, 190, 10, 'F');
+                    doc.text(`Avaliação ${index + 1}: ${eval.class} - ${eval.date} - ${eval.trainer}`, 15, startY + 7);
+                    
+                    startY += 15;
+                    
+                    // Resumo por avaliação
+                    let evalExcellent = 0;
+                    let evalGood = 0;
+                    let evalImprove = 0;
+                    
+                    eval.evaluations.forEach(criterion => {
+                        if (criterion.rating === 'Excelente') evalExcellent++;
+                        else if (criterion.rating === 'Bom') evalGood++;
+                        else if (criterion.rating === 'A melhorar') evalImprove++;
+                    });
+                    
+                    doc.setFontSize(10);
+                    doc.text(`Excelente: ${evalExcellent} | Bom: ${evalGood} | A melhorar: ${evalImprove}`, 20, startY);
+                    
+                    startY += 20;
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Sistema de Avaliação de Performance - Relatório', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `${title.replace(/\s+/g, '_')}.pdf`;
+                doc.save(fileName);
+            }
+        });
     </script>
 </body>
 </html>
