@@ -613,13 +613,13 @@
                 {
                     id: 'posture',
                     title: 'Postura',
-                    description: 'Manteve postura e atitude compatíveis (escuta, espera, respeito)?'
+                    description: 'Manteve postura and atitude compatíveis (escuta, espera, respeito)?'
                 }
             ],
             'Discovery': [
                 {
                     id: 'attention',
-                    title: 'Atenção and Engajamento',
+                    title: 'Atenção e Engajamento',
                     description: 'A turma manteve bom nível de atenção e engajamento nas atividades?'
                 },
                 {
@@ -667,7 +667,7 @@
                 {
                     id: 'responsibility',
                     title: 'Responsabilidade',
-                    description: 'Demonstrou responsabilidade and maturidade no comportamento coletivo?'
+                    description: 'Demonstrou responsabilidade e maturidade no comportamento coletivo?'
                 }
             ]
         };
@@ -778,13 +778,6 @@
                     document.getElementById('admin-password').value = '';
                 }
             });
-            
-            // Verificar se já está logado
-            const savedUser = sessionStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                initializeAppForUser();
-            }
             
             // Configurar logout
             document.getElementById('logout-btn').addEventListener('click', function() {
@@ -1085,7 +1078,7 @@
             }
             
             container.innerHTML = '';
-            userEvaluations.forEach((evaluation, index) => {
+            userEvaluations.forEach((evaluation, index) {
                 const evalElement = document.createElement('div');
                 evalElement.className = 'evaluation-card card';
                 
@@ -1179,7 +1172,7 @@
                 evalElement.innerHTML = `
                     <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
                     <p><strong>Usuário:</strong> ${evaluation.user}</p>
-                    <p><strong>Treinador:</strong> ${evaluation.trainer</p>
+                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
                     <p><strong>Eixo:</strong> ${evaluation.axis}</p>
                     <p><strong>Turno:</strong> ${evaluation.shift}</p>
                     <div class="criteria-results">
@@ -1261,7 +1254,7 @@
             // Ordenar logs por timestamp (mais recente primeiro)
             logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
-            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREinamentos\n';
+            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
             logText += '===========================================================\n\n';
             
             logs.forEach(log => {
@@ -1297,7 +1290,7 @@
                 classes[eval.class].push(eval);
             });
             
-            // Calcular médias and criar relatório
+            // Calcular médias e criar relatório
             for (const [className, classEvals] of Object.entries(classes)) {
                 const classSection = document.createElement('div');
                 classSection.className = 'card';
@@ -1350,141 +1343,4 @@
                     row.innerHTML = `
                         <td>${formatDate(eval.date)}</td>
                         <td>${eval.trainer}</td>
-                        <td>${eval.axis}</td>
-                        <td>${eval.shift}</td>
-                        <td>${performanceText}</td>
-                        <td>${eval.generalObservations || '-'}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                
-                classSection.appendChild(table);
-                reportContent.appendChild(classSection);
-            }
-        }
-        
-        // Função para gerar PDF de uma avaliação individual
-        function generateEvaluationPDF(evaluation) {
-            const doc = new jsPDF();
-            
-            // Cabeçalho
-            doc.setFontSize(20);
-            doc.setTextColor(40, 40, 40);
-            doc.text('Avaliação de Treinamento', 105, 20, { align: 'center' });
-            
-            doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            doc.text('Sistema de Avaliação Semanal', 105, 28, { align: 'center' });
-            
-            // Linha separadora
-            doc.setDrawColor(200, 200, 200);
-            doc.line(20, 35, 190, 35);
-            
-            // Informações da avaliação
-            doc.setFontSize(16);
-            doc.setTextColor(40, 40, 40);
-            doc.text('Informações da Avaliação', 20, 45);
-            
-            doc.setFontSize(12);
-            doc.setTextColor(80, 80, 80);
-            
-            let yPosition = 55;
-            
-            doc.text(`Data: ${formatDate(evaluation.date)}`, 20, yPosition);
-            yPosition += 8;
-            
-            doc.text(`Treinador: ${evaluation.trainer}`, 20, yPosition);
-            yPosition += 8;
-            
-            doc.text(`Eixo: ${evaluation.axis}`, 20, yPosition);
-            yPosition += 8;
-            
-            doc.text(`Turno: ${evaluation.shift}`, 20, yPosition);
-            yPosition += 8;
-            
-            doc.text(`Turma: ${evaluation.class}`, 20, yPosition);
-            yPosition += 15;
-            
-            // Critérios de performance
-            doc.setFontSize(16);
-            doc.setTextColor(40, 40, 40);
-            doc.text('Avaliação de Critérios de Performance', 20, yPosition);
-            yPosition += 10;
-            
-            doc.setFontSize(12);
-            
-            for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
-                if (yPosition > 250) {
-                    doc.addPage();
-                    yPosition = 20;
-                }
-                
-                // Nome do critério
-                doc.setFontSize(12);
-                doc.setTextColor(40, 40, 40);
-                doc.text(`${criterionId}: ${data.value}`, 20, yPosition);
-                yPosition += 7;
-                
-                // Observações do critério
-                if (data.observations) {
-                    doc.setFontSize(10);
-                    doc.setTextColor(100, 100, 100);
-                    
-                    const splitObservations = doc.splitTextToSize(`Observações: ${data.observations}`, 170);
-                    doc.text(splitObservations, 25, yPosition);
-                    yPosition += splitObservations.length * 5 + 5;
-                } else {
-                    yPosition += 5;
-                }
-            }
-            
-            // Observações gerais
-            if (evaluation.generalObservations) {
-                if (yPosition > 220) {
-                    doc.addPage();
-                    yPosition = 20;
-                }
-                
-                doc.setFontSize(12);
-                doc.setTextColor(40, 40, 40);
-                doc.text('Observações Gerais:', 20, yPosition);
-                yPosition += 7;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(100, 100, 100);
-                
-                const splitObservations = doc.splitTextToSize(evaluation.generalObservations, 170);
-                doc.text(splitObservations, 20, yPosition);
-                yPosition += splitObservations.length * 5 + 10;
-            }
-            
-            // Rodapé
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Documento gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 280);
-            doc.text(`Usuário: ${evaluation.user}`, 170, 280, { align: 'right' });
-            
-            // Salvar o PDF
-            doc.save(`Avaliacao-${evaluation.class}-${formatDate(evaluation.date, 'file')}.pdf`);
-        }
-        
-        // Função para formatar data
-        function formatDate(dateString, format = 'display') {
-            const date = new Date(dateString);
-            if (format === 'file') {
-                return date.toISOString().split('T')[0];
-            }
-            return date.toLocaleDateString('pt-BR');
-        }
-        
-        // Função para formatar data e hora
-        function formatDateTime(dateTimeString) {
-            const date = new Date(dateTimeString);
-            return date.toLocaleString('pt-BR');
-        }
-        
-        // Inicializar a aplicação quando o documento estiver carregado
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
+                        <td>
