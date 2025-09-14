@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso ao Sistema</title>
+    <title>Acesso ao Sistema - Gestão Pedagógica</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -31,7 +31,7 @@
         }
         
         .header {
-            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            background: linear-gradient(to right, #2980b9, #2c3e50);
             color: white;
             padding: 25px;
             text-align: center;
@@ -69,7 +69,7 @@
         
         .perfil-btn {
             padding: 18px;
-            background: linear-gradient(to right, #4b6cb7, #182848);
+            background: linear-gradient(to right, #3498db, #2980b9);
             border: none;
             border-radius: 10px;
             text-align: center;
@@ -81,7 +81,7 @@
         }
         
         .perfil-btn.treinador {
-            background: linear-gradient(to right, #fdbb2d, #b21f1f);
+            background: linear-gradient(to right, #2ecc71, #27ae60);
         }
         
         .perfil-btn:hover {
@@ -120,9 +120,9 @@
         }
         
         .form-group input:focus {
-            border-color: #4b6cb7;
+            border-color: #3498db;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         
         .btn-group {
@@ -151,20 +151,20 @@
         }
         
         .btn-primary {
-            background: linear-gradient(to right, #4b6cb7, #182848);
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(to right, #405ca0, #131f38);
-            box-shadow: 0 4px 12px rgba(75, 108, 183, 0.4);
+            background: linear-gradient(to right, #2980b9, #2573a7);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
         }
         
         .back-btn {
             display: block;
             text-align: center;
             margin-top: 20px;
-            color: #4b6cb7;
+            color: #3498db;
             cursor: pointer;
             font-weight: 500;
         }
@@ -194,7 +194,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Sistema de Gestão Esportiva</h1>
+            <h1>Sistema de Gestão Pedagógica</h1>
             <p>Selecione seu perfil para acessar o sistema</p>
         </div>
         
@@ -205,7 +205,7 @@
                 <div class="perfil-btn" onclick="showLoginForm('coord')">
                     Acesso da Coordenação
                 </div>
-                <div class="perfil-btn treinador" onclick="showLoginForm('treinador')">
+                <div class="perfil-btn treinador" onclick="acessarComoTreinador()">
                     Acesso do Treinador
                 </div>
             </div>
@@ -215,12 +215,12 @@
                 
                 <div class="form-group">
                     <label for="senha" id="labelSenha">Digite a senha de administrador para continuar:</label>
-                    <input type="password" id="senha" placeholder="Senha de acesso">
+                    <input type="password" id="senha" placeholder="Senha de administrador">
                 </div>
                 
                 <div class="btn-group">
                     <button class="btn btn-cancel" onclick="goBack()">Cancelar</button>
-                    <button class="btn btn-primary" onclick="acessarSistema()">Acessar</button>
+                    <button class="btn btn-primary" onclick="acessarCoordenacao()">Acessar</button>
                 </div>
                 
                 <div class="back-btn" onclick="goBack()">← Voltar para seleção de perfil</div>
@@ -228,7 +228,7 @@
         </div>
         
         <div class="footer">
-            &copy; 2025 Sistema de Gestão Esportiva. Todos os direitos reservados.
+            &copy; 2025 Sistema de Gestão Pedagógica. Todos os direitos reservados.
         </div>
     </div>
 
@@ -236,19 +236,27 @@
         function showLoginForm(perfil) {
             document.getElementById('perfilOptions').style.display = 'none';
             document.getElementById('loginForm').classList.add('active');
+        }
+        
+        function acessarComoTreinador() {
+            // Acesso direto sem senha para treinadores
+            alert('Acesso como treinador realizado com sucesso! Redirecionando...');
+            // window.location.href = 'painel-treinador.html'; // Redirecionamento real
+        }
+        
+        function acessarCoordenacao() {
+            const senha = document.getElementById('senha').value;
+            if (!senha) {
+                alert('Por favor, digite a senha de administrador.');
+                return;
+            }
             
-            // Altera o título e texto conforme o perfil selecionado
-            const formTitle = document.getElementById('formTitle');
-            const labelSenha = document.getElementById('labelSenha');
-            
-            if (perfil === 'coord') {
-                formTitle.textContent = 'Acesso da Coordenação';
-                labelSenha.textContent = 'Digite a senha de administrador para continuar:';
-                document.getElementById('senha').placeholder = 'Senha de administrador';
-            } else if (perfil === 'treinador') {
-                formTitle.textContent = 'Acesso do Treinador';
-                labelSenha.textContent = 'Digite sua senha de treinador:';
-                document.getElementById('senha').placeholder = 'Senha de treinador';
+            // Aqui viria a lógica de autenticação real
+            if (senha === "admin123") { // Senha de exemplo
+                alert('Acesso da coordenação realizado com sucesso! Redirecionando...');
+                // window.location.href = 'painel-coordenacao.html'; // Redirecionamento real
+            } else {
+                alert('Senha incorreta. Tente novamente.');
             }
         }
         
@@ -256,18 +264,6 @@
             document.getElementById('loginForm').classList.remove('active');
             document.getElementById('perfilOptions').style.display = 'flex';
             document.getElementById('senha').value = '';
-        }
-        
-        function acessarSistema() {
-            const senha = document.getElementById('senha').value;
-            if (!senha) {
-                alert('Por favor, digite sua senha.');
-                return;
-            }
-            
-            // Aqui viria a lógica de autenticação real
-            alert('Acesso realizado com sucesso! Redirecionando...');
-            // window.location.href = 'painel.html'; // Redirecionamento real
         }
     </script>
 </body>
