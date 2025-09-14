@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação de Performance - macOS Style</title>
+    <title>Avaliação de Performance - Leader's School</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
+            --ls-dark: #400F13;
+            --ls-light: #BFBE90;
+            --ls-accent: #F29A2E;
+            --ls-brown: #BF612A;
+            --ls-red: #730606;
+            
             --macos-background: #f5f5f7;
             --macos-card: #ffffff;
             --macos-text: #1d1d1f;
             --macos-text-secondary: #86868b;
-            --macos-blue: #007aff;
-            --macos-red: #ff3b30;
-            --macos-green: #34c759;
-            --macos-yellow: #ffcc00;
-            --macos-purple: #af52de;
-            --macos-gray: #8e8e93;
             --macos-border: #e5e5e7;
             --macos-header: #ffffff80;
             --macos-header-border: #d2d2d7;
-            --macos-toolbar: #ffffff;
             --macos-sidebar: #f5f5f7;
         }
 
@@ -48,7 +47,7 @@
         /* Barra de título no estilo macOS */
         .titlebar {
             height: 38px;
-            background-color: var(--macos-header);
+            background-color: var(--ls-dark);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--macos-header-border);
@@ -75,21 +74,21 @@
         }
 
         .titlebar-button.close {
-            background-color: var(--macos-red);
+            background-color: #ff5f57;
         }
 
         .titlebar-button.minimize {
-            background-color: var(--macos-yellow);
+            background-color: #ffbd2e;
         }
 
         .titlebar-button.maximize {
-            background-color: var(--macos-green);
+            background-color: #28c940;
         }
 
         .titlebar-title {
             font-size: 13px;
             font-weight: 500;
-            color: var(--macos-text-secondary);
+            color: white;
         }
 
         /* Layout principal */
@@ -109,7 +108,7 @@
         /* Sidebar no estilo macOS */
         .sidebar {
             width: 220px;
-            background-color: var(--macos-sidebar);
+            background-color: var(--ls-light);
             border-right: 1px solid var(--macos-border);
             padding: 20px 0;
             overflow-y: auto;
@@ -122,7 +121,7 @@
         .sidebar-title {
             font-size: 11px;
             font-weight: 600;
-            color: var(--macos-text-secondary);
+            color: var(--ls-dark);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 0 20px;
@@ -133,19 +132,20 @@
             display: flex;
             align-items: center;
             padding: 8px 20px;
-            color: var(--macos-text);
+            color: var(--ls-dark);
             text-decoration: none;
             transition: background-color 0.2s;
             cursor: pointer;
+            font-weight: 500;
         }
 
         .sidebar-item:hover {
-            background-color: rgba(0, 0, 0, 0.04);
+            background-color: rgba(64, 15, 19, 0.1);
         }
 
         .sidebar-item.active {
-            background-color: rgba(0, 122, 255, 0.1);
-            color: var(--macos-blue);
+            background-color: var(--ls-dark);
+            color: white;
         }
 
         .sidebar-item i {
@@ -160,6 +160,7 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            background-color: #fafafa;
         }
 
         .content-header {
@@ -170,18 +171,19 @@
             font-size: 22px;
             font-weight: 600;
             margin-bottom: 4px;
+            color: var(--ls-dark);
         }
 
         .content-subtitle {
             font-size: 14px;
-            color: var(--macos-text-secondary);
+            color: var(--ls-brown);
         }
 
         /* Cards no estilo macOS */
         .card {
             background-color: var(--macos-card);
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 20px;
             margin-bottom: 16px;
             border: 1px solid var(--macos-border);
@@ -192,11 +194,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--macos-border);
         }
 
         .card-title {
             font-size: 15px;
             font-weight: 600;
+            color: var(--ls-dark);
         }
 
         /* Formulários e controles */
@@ -209,7 +214,7 @@
             margin-bottom: 6px;
             font-weight: 500;
             font-size: 12px;
-            color: var(--macos-text-secondary);
+            color: var(--ls-dark);
         }
 
         select, input, textarea {
@@ -224,8 +229,8 @@
 
         select:focus, input:focus, textarea:focus {
             outline: none;
-            border-color: var(--macos-blue);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+            border-color: var(--ls-accent);
+            box-shadow: 0 0 0 3px rgba(242, 154, 46, 0.2);
         }
 
         /* Botões no estilo macOS */
@@ -239,7 +244,7 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: all 0.2s;
             background-color: transparent;
         }
 
@@ -252,26 +257,34 @@
         }
 
         .btn-primary {
-            background-color: var(--macos-blue);
+            background-color: var(--ls-dark);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #0062cc;
+            background-color: #2c0a0e;
         }
 
         .btn-success {
-            background-color: var(--macos-green);
+            background-color: var(--ls-accent);
             color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #e08a1f;
         }
 
         .btn-danger {
-            background-color: var(--macos-red);
+            background-color: var(--ls-red);
             color: white;
         }
 
+        .btn-danger:hover {
+            background-color: #5c0505;
+        }
+
         .btn-warning {
-            background-color: var(--macos-yellow);
+            background-color: var(--ls-brown);
             color: white;
         }
 
@@ -290,7 +303,8 @@
         th {
             font-weight: 600;
             font-size: 12px;
-            color: var(--macos-text-secondary);
+            color: var(--ls-dark);
+            background-color: var(--ls-light);
         }
 
         /* Critérios de avaliação */
@@ -310,7 +324,7 @@
         .criteria-title {
             font-weight: 600;
             margin-bottom: 12px;
-            color: var(--macos-text);
+            color: var(--ls-dark);
         }
 
         .rating-options {
@@ -336,7 +350,7 @@
         .dashboard-card {
             background-color: var(--macos-card);
             border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 20px;
             border: 1px solid var(--macos-border);
             height: 300px;
@@ -348,13 +362,13 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, var(--ls-light) 0%, var(--ls-dark) 100%);
         }
 
         .login-card {
             background-color: var(--macos-card);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             padding: 32px;
             width: 400px;
             text-align: center;
@@ -366,7 +380,7 @@
             height: 80px;
             border-radius: 50%;
             margin: 0 auto 16px;
-            background: linear-gradient(135deg, var(--macos-blue), var(--macos-purple));
+            background: linear-gradient(135deg, var(--ls-dark), var(--ls-accent));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -378,11 +392,12 @@
             font-size: 22px;
             font-weight: 600;
             margin-bottom: 8px;
+            color: var(--ls-dark);
         }
 
         .login-subtitle {
             font-size: 14px;
-            color: var(--macos-text-secondary);
+            color: var(--ls-brown);
             margin-bottom: 24px;
         }
 
@@ -404,14 +419,14 @@
         }
 
         .user-btn:hover {
-            background-color: rgba(0, 122, 255, 0.1);
-            border-color: var(--macos-blue);
+            background-color: var(--ls-light);
+            border-color: var(--ls-dark);
         }
 
         .user-btn.active {
-            background-color: var(--macos-blue);
+            background-color: var(--ls-dark);
             color: white;
-            border-color: var(--macos-blue);
+            border-color: var(--ls-dark);
         }
 
         /* Utilitários */
@@ -441,12 +456,12 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
+            background: var(--ls-light);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: var(--ls-brown);
         }
     </style>
 </head>
@@ -458,7 +473,7 @@
             <div class="titlebar-button minimize"></div>
             <div class="titlebar-button maximize"></div>
         </div>
-        <div class="titlebar-title">Avaliação de Performance</div>
+        <div class="titlebar-title">Avaliação de Performance - Leader's School</div>
         <div style="width: 60px;"></div> <!-- Espaço para centralizar o título -->
     </div>
 
@@ -469,7 +484,7 @@
                 <i class="fas fa-chalkboard-teacher"></i>
             </div>
             <h1 class="login-title">Avaliação de Performance</h1>
-            <p class="login-subtitle">Selecione seu perfil para acessar o sistema</p>
+            <p class="login-subtitle">Leader's School - Selecione seu perfil</p>
             
             <div class="card">
                 <h2 class="card-title">Acesso Treinadores</h2>
@@ -543,7 +558,7 @@
                 <!-- Cabeçalho do conteúdo -->
                 <div class="content-header">
                     <h1 class="content-title" id="content-title">Avaliação de Performance</h1>
-                    <p class="content-subtitle" id="content-subtitle">Preencha os dados da avaliação diária</p>
+                    <p class="content-subtitle" id="content-subtitle">Leader's School - Preencha os dados da avaliação diária</p>
                 </div>
                 
                 <!-- Interface do Treinador -->
@@ -740,10 +755,745 @@
     </div>
 
     <script>
-        // Código JavaScript permanece o mesmo da versão anterior
-        // (O código completo está disponível no arquivo anterior)
-        // Para economizar espaço, não repetirei o código JavaScript completo aqui
-        // Mas note que é necessário incluir todo o JavaScript da implementação anterior
+        // Código JavaScript permanece praticamente o mesmo da versão anterior
+        // Apenas ajustes para funcionar com a nova interface
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir data atual como padrão
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+            
+            // Definir período padrão para relatórios (últimos 7 dias)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            const startYYYY = oneWeekAgo.getFullYear();
+            const startMM = String(oneWeekAgo.getMonth() + 1).padStart(2, '0');
+            const startDD = String(oneWeekAgo.getDate()).padStart(2, '0');
+            
+            document.getElementById('report-start-date').value = `${startYYYY}-${startMM}-${startDD}`;
+            document.getElementById('report-end-date').value = `${yyyy}-${mm}-${dd}`;
+            
+            // Critérios por tipo de turma
+            const criteria = {
+                'Foundation': [
+                    "A turma participou ativamente das atividades propostas?",
+                    "Demonstrou compreender os conceitos de forma adequada para a idade?",
+                    "Conseguiu colocar em prática a atividade/jogo da aula como grupo?",
+                    "Interagiu bem entre si durante a experiência?",
+                    "Manteve postura e atitude compatíveis (escuta, espera, respeito)?"
+                ],
+                'Discovery': [
+                    "A turma manteve bom nível de atenção e engajamento nas atividades?",
+                    "Demonstrou domínio básico do conteúdo trabalhado em aula?",
+                    "Aplicou o que aprendeu durante a experiência prática como grupo?",
+                    "Colaborou e se entrosou no desenvolvimento das atividades?",
+                    "Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?"
+                ],
+                'Challenge': [
+                    "A turma se manteve engajada e atenta ao longo da aula?",
+                    "Apresentou domínio do conteúdo de forma clara e consistente?",
+                    "Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?",
+                    "Atuou em cooperação e liderança durante as atividades?",
+                    "Demonstrou responsabilidade e maturidade no comportamento coletivo?"
+                ]
+            };
+            
+            // Elementos do DOM
+            const loginScreen = document.getElementById('login-screen');
+            const appContainer = document.getElementById('app-container');
+            const trainerInterface = document.getElementById('trainer-interface');
+            const adminInterface = document.getElementById('admin-interface');
+            const logoutBtn = document.getElementById('logout-btn');
+            const classSelect = document.getElementById('class');
+            const evaluationContainer = document.getElementById('evaluation-container');
+            const criteriaContainer = document.getElementById('criteria-container');
+            const saveBtn = document.getElementById('save-btn');
+            const weeklyReportBtn = document.getElementById('weekly-report-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const generateReportBtn = document.getElementById('generate-report-btn');
+            const viewLogsBtn = document.getElementById('view-logs-btn');
+            const logsContainer = document.getElementById('logs-view');
+            const logFilter = document.getElementById('log-filter');
+            const logEntries = document.getElementById('log-entries');
+            
+            // Estado da aplicação
+            let currentUser = null;
+            let userRole = null;
+            
+            // Login dos treinadores
+            document.querySelectorAll('.user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    setTimeout(() => {
+                        currentUser = this.getAttribute('data-trainer');
+                        userRole = 'trainer';
+                        login();
+                    }, 300);
+                });
+            });
+            
+            // Login da coordenação
+            document.getElementById('admin-login-btn').addEventListener('click', function() {
+                const password = document.getElementById('admin-password').value;
+                // SENHA DA COORDENAÇÃO: admin123
+                if (password === 'admin123') {
+                    currentUser = 'Coordenação';
+                    userRole = 'admin';
+                    login();
+                } else {
+                    alert('Senha incorreta. Tente novamente.');
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Quando a turma é selecionada, mostrar os critérios apropriados
+            classSelect.addEventListener('change', function() {
+                const selectedClass = this.value;
+                if (selectedClass) {
+                    evaluationContainer.classList.remove('hidden');
+                    
+                    // Determinar o tipo de turma (Foundation, Discovery, Challenge)
+                    let classType = '';
+                    if (selectedClass.includes('Foundation')) classType = 'Foundation';
+                    else if (selectedClass.includes('Discovery')) classType = 'Discovery';
+                    else if (selectedClass.includes('Challenge')) classType = 'Challenge';
+                    
+                    // Gerar os critérios de avaliação
+                    criteriaContainer.innerHTML = '';
+                    criteria[classType].forEach((criterion, index) => {
+                        const criterionCard = document.createElement('div');
+                        criterionCard.className = 'criteria-card';
+                        
+                        criterionCard.innerHTML = `
+                            <div class="criteria-title">${index + 1}. ${criterion}</div>
+                            <div class="rating-options">
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-excellent" name="criterion-${index}" value="Excelente" required>
+                                    <label for="criterion-${index}-excellent">Excelente</label>
+                                </div>
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-good" name="criterion-${index}" value="Bom">
+                                    <label for="criterion-${index}-good">Bom</label>
+                                </div>
+                                <div class="rating-option">
+                                    <input type="radio" id="criterion-${index}-improve" name="criterion-${index}" value="A melhorar">
+                                    <label for="criterion-${index}-improve">A melhorar</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="obs-${index}">Observações:</label>
+                                <textarea id="obs-${index}" rows="2"></textarea>
+                            </div>
+                        `;
+                        
+                        criteriaContainer.appendChild(criterionCard);
+                    });
+                } else {
+                    evaluationContainer.classList.add('hidden');
+                }
+            });
+            
+            // Salvar avaliação
+            saveBtn.addEventListener('click', function() {
+                // Validar formulário
+                const trainer = document.getElementById('trainer').value;
+                const axis = document.getElementById('axis').value;
+                const date = document.getElementById('date').value;
+                const shift = document.getElementById('shift').value;
+                const classValue = document.getElementById('class').value;
+                
+                if (!trainer || !axis || !date || !shift || !classValue) {
+                    alert('Por favor, preencha todas as informações básicas.');
+                    return;
+                }
+                
+                // Coletar avaliações dos critérios
+                const evaluations = [];
+                const classType = classValue.includes('Foundation') ? 'Foundation' : 
+                                 classValue.includes('Discovery') ? 'Discovery' : 'Challenge';
+                
+                criteria[classType].forEach((criterion, index) => {
+                    const rating = document.querySelector(`input[name="criterion-${index}"]:checked`);
+                    const observations = document.getElementById(`obs-${index}`).value;
+                    
+                    if (!rating) {
+                        alert(`Por favor, avalie o critério: ${criterion}`);
+                        return;
+                    }
+                    
+                    evaluations.push({
+                        criterion: criterion,
+                        rating: rating.value,
+                        observations: observations
+                    });
+                });
+                
+                // Criar objeto de avaliação
+                const evaluation = {
+                    trainer: trainer,
+                    axis: axis,
+                    date: date,
+                    shift: shift,
+                    class: classValue,
+                    evaluations: evaluations
+                };
+                
+                // Salvar no localStorage
+                saveEvaluation(evaluation);
+                
+                // Registrar no log
+                logAction(`${trainer} registrou uma avaliação para a turma ${classValue} (${date})`);
+                
+                // Gerar PDF
+                generatePDF(evaluation);
+                
+                alert('Avaliação salva com sucesso e PDF gerado!');
+            });
+            
+            // Gerar relatório semanal
+            weeklyReportBtn.addEventListener('click', function() {
+                generateWeeklyReport();
+            });
+            
+            // Limpar formulário
+            resetBtn.addEventListener('click', function() {
+                document.getElementById('trainer').value = '';
+                document.getElementById('axis').value = '';
+                document.getElementById('shift').value = '';
+                document.getElementById('class').value = '';
+                evaluationContainer.classList.add('hidden');
+                
+                // Definir data atual novamente
+                document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+            });
+            
+            // Gerar relatório personalizado (admin)
+            generateReportBtn.addEventListener('click', function() {
+                generateCustomReport();
+            });
+            
+            // Visualizar logs (admin)
+            viewLogsBtn.addEventListener('click', function() {
+                document.getElementById('dashboard-view').classList.add('hidden');
+                document.getElementById('logs-view').classList.remove('hidden');
+                loadLogs();
+            });
+            
+            // Filtrar logs (admin)
+            logFilter.addEventListener('change', function() {
+                loadLogs(this.value);
+            });
+            
+            // Navegação pela sidebar
+            document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const view = this.getAttribute('data-view');
+                    
+                    // Ativar item selecionado
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (view === 'logs') {
+                        document.getElementById('dashboard-view').classList.add('hidden');
+                        document.getElementById('logs-view').classList.remove('hidden');
+                        loadLogs();
+                    } else if (view === 'dashboard') {
+                        document.getElementById('logs-view').classList.add('hidden');
+                        document.getElementById('dashboard-view').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // ========== FUNÇÕES PRINCIPAIS ==========
+            function login() {
+                loginScreen.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                
+                if (userRole === 'admin') {
+                    trainerInterface.classList.add('hidden');
+                    adminInterface.classList.remove('hidden');
+                    initializeAdminDashboard();
+                    logAction('Acesso ao painel de coordenação');
+                } else {
+                    trainerInterface.classList.remove('hidden');
+                    adminInterface.classList.add('hidden');
+                    document.getElementById('trainer').value = currentUser;
+                    logAction('Login no sistema');
+                }
+            }
+            
+            function logout() {
+                logAction('Logout do sistema');
+                currentUser = null;
+                userRole = null;
+                appContainer.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                document.getElementById('admin-password').value = '';
+            }
+            
+            function logAction(action) {
+                const timestamp = new Date().toISOString();
+                let logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+                
+                logs.push({
+                    user: currentUser,
+                    action: action,
+                    timestamp: timestamp
+                });
+                
+                localStorage.setItem('systemLogs', JSON.stringify(logs));
+            }
+            
+            function loadLogs(filterUser = '') {
+                const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
+                logEntries.innerHTML = '';
+                
+                const filteredLogs = filterUser ? 
+                    logs.filter(log => log.user === filterUser) : 
+                    logs;
+                
+                if (filteredLogs.length === 0) {
+                    logEntries.innerHTML = '<div class="log-entry">Nenhum registro encontrado</div>';
+                    return;
+                }
+                
+                // Mostrar logs mais recentes primeiro
+                filteredLogs.reverse().forEach(log => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    
+                    const date = new Date(log.timestamp);
+                    const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                    
+                    logEntry.innerHTML = `
+                        <strong>${log.user}</strong> - ${formattedDate}<br>
+                        ${log.action}
+                    `;
+                    
+                    logEntries.appendChild(logEntry);
+                });
+            }
+            
+            function initializeAdminDashboard() {
+                // Inicializar gráficos do dashboard
+                initializeCharts();
+            }
+            
+            function initializeCharts() {
+                // Dados de exemplo para os gráficos
+                const classData = {
+                    labels: ['Foundation', 'Discovery', 'Challenge'],
+                    datasets: [{
+                        label: 'Desempenho Médio',
+                        data: [85, 78, 92],
+                        backgroundColor: [
+                            'rgba(191, 190, 144, 0.7)',
+                            'rgba(242, 154, 46, 0.7)',
+                            'rgba(191, 97, 42, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(191, 190, 144)',
+                            'rgb(242, 154, 46)',
+                            'rgb(191, 97, 42)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const axisData = {
+                    labels: ['Inteligência Emocional', 'Liderança & Business', 'Inglês'],
+                    datasets: [{
+                        label: 'Desempenho por Eixo',
+                        data: [82, 88, 75],
+                        backgroundColor: [
+                            'rgba(64, 15, 19, 0.7)',
+                            'rgba(191, 190, 144, 0.7)',
+                            'rgba(115, 6, 6, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(64, 15, 19)',
+                            'rgb(191, 190, 144)',
+                            'rgb(115, 6, 6)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const timelineData = {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+                    datasets: [{
+                        label: 'Desempenho Diário',
+                        data: [80, 85, 82, 88, 90],
+                        fill: false,
+                        borderColor: 'rgb(64, 15, 19)',
+                        tension: 0.1
+                    }]
+                };
+                
+                const ratingData = {
+                    labels: ['Excelente', 'Bom', 'A melhorar'],
+                    datasets: [{
+                        label: 'Distribuição de Avaliações',
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(64, 15, 19, 0.7)',
+                            'rgba(242, 154, 46, 0.7)',
+                            'rgba(115, 6, 6, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(64, 15, 19)',
+                            'rgb(242, 154, 46)',
+                            'rgb(115, 6, 6)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                // Renderizar gráficos
+                new Chart(document.getElementById('classPerformanceChart'), {
+                    type: 'bar',
+                    data: classData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('axisPerformanceChart'), {
+                    type: 'pie',
+                    data: axisData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+                
+                new Chart(document.getElementById('timelineChart'), {
+                    type: 'line',
+                    data: timelineData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('ratingDistributionChart'), {
+                    type: 'doughnut',
+                    data: ratingData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+            
+            // Função para salvar avaliação no localStorage
+            function saveEvaluation(evaluation) {
+                let evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                evaluations.push(evaluation);
+                localStorage.setItem('classEvaluations', JSON.stringify(evaluations));
+            }
+            
+            // Função para gerar PDF da avaliação
+            function generatePDF(evaluation) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(64, 15, 19);
+                doc.text('AVALIAÇÃO DE PERFORMANCE DA TURMA', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Data: ${evaluation.date} | Turno: ${evaluation.shift} | Turma: ${evaluation.class}`, 105, 22, { align: 'center' });
+                doc.text(`Treinador: ${evaluation.trainer} | Eixo: ${evaluation.axis}`, 105, 29, { align: 'center' });
+                
+                // Linha divisória
+                doc.setDrawColor(64, 15, 19);
+                doc.line(10, 35, 200, 35);
+                
+                // Título da tabela
+                doc.setFontSize(14);
+                doc.setTextColor(64, 15, 19);
+                doc.text('RESULTADOS DA AVALIAÇÃO', 105, 45, { align: 'center' });
+                
+                // Preparar dados da tabela
+                const tableData = [];
+                evaluation.evaluations.forEach((item, index) => {
+                    tableData.push([
+                        index + 1,
+                        item.criterion,
+                        item.rating,
+                        item.observations || 'Nenhuma'
+                    ]);
+                });
+                
+                // Gerar tabela
+                doc.autoTable({
+                    startY: 50,
+                    head: [['#', 'Critério', 'Avaliação', 'Observações']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [64, 15, 19]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    },
+                    margin: { top: 50 },
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3,
+                        overflow: 'linebreak'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 10 },
+                        1: { cellWidth: 80 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 50 }
+                    }
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Leader\'s School - Sistema de Avaliação de Performance', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `Avaliacao_${evaluation.class}_${evaluation.date.replace(/-/g, '')}.pdf`;
+                doc.save(fileName);
+            }
+            
+            // Função para gerar relatório semanal
+            function generateWeeklyReport() {
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                if (evaluations.length === 0) {
+                    alert('Não há avaliações salvas para gerar o relatório.');
+                    return;
+                }
+                
+                // Obter data atual e calcular início da semana (segunda-feira)
+                const today = new Date();
+                const dayOfWeek = today.getDay(); // 0 (domingo) a 6 (sábado)
+                const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - diffToMonday);
+                
+                // Formatar datas para comparação
+                const formatDate = (date) => {
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                };
+                
+                const mondayStr = formatDate(monday);
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                const sundayStr = formatDate(sunday);
+                
+                // Filtrar avaliações da semana atual
+                const weeklyEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    return evalDate >= new Date(mondayStr) && evalDate <= new Date(sundayStr);
+                });
+                
+                if (weeklyEvaluations.length === 0) {
+                    alert(`Não há avaliações para a semana de ${mondayStr} a ${sundayStr}.`);
+                    return;
+                }
+                
+                // Gerar PDF do relatório semanal
+                generateCustomReportPDF(weeklyEvaluations, `Relatório Semanal (${mondayStr} a ${sundayStr})`);
+                logAction(`Relatório semanal gerado para o período ${mondayStr} a ${sundayStr}`);
+            }
+            
+            // Função para gerar relatório personalizado (admin)
+            function generateCustomReport() {
+                const startDate = document.getElementById('report-start-date').value;
+                const endDate = document.getElementById('report-end-date').value;
+                const trainerFilter = document.getElementById('report-trainer').value;
+                const classFilter = document.getElementById('report-class').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Por favor, selecione um período para o relatório.');
+                    return;
+                }
+                
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                // Filtrar avaliações conforme critérios
+                const filteredEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    const meetsDate = evalDate >= new Date(startDate) && evalDate <= new Date(endDate);
+                    const meetsTrainer = !trainerFilter || eval.trainer === trainerFilter;
+                    const meetsClass = !classFilter || eval.class === classFilter;
+                    
+                    return meetsDate && meetsTrainer && meetsClass;
+                });
+                
+                if (filteredEvaluations.length === 0) {
+                    alert('Não há avaliações que correspondam aos critérios selecionados.');
+                    return;
+                }
+                
+                generateCustomReportPDF(filteredEvaluations, `Relatório Personalizado (${startDate} a ${endDate})`);
+                logAction(`Relatório personalizado gerado com filtros: ${trainerFilter || 'Todos'}, ${classFilter || 'Todas'}`);
+            }
+            
+            // Função para gerar PDF de relatório personalizado
+            function generateCustomReportPDF(evaluations, title) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(64, 15, 19);
+                doc.text(title, 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Período: ${evaluations[0].date} a ${evaluations[evaluations.length - 1].date}`, 105, 22, { align: 'center' });
+                
+                // Linha divisória
+                doc.setDrawColor(64, 15, 19);
+                doc.line(10, 30, 200, 30);
+                
+                // Resumo estatístico
+                let excellentCount = 0;
+                let goodCount = 0;
+                let improveCount = 0;
+                let totalCriteria = 0;
+                
+                evaluations.forEach(eval => {
+                    eval.evaluations.forEach(criterion => {
+                        totalCriteria++;
+                        if (criterion.rating === 'Excelente') excellentCount++;
+                        else if (criterion.rating === 'Bom') goodCount++;
+                        else if (criterion.rating === 'A melhorar') improveCount++;
+                    });
+                });
+                
+                const excellentPercent = Math.round((excellentCount / totalCriteria) * 100);
+                const goodPercent = Math.round((goodCount / totalCriteria) * 100);
+                const improvePercent = Math.round((improveCount / totalCriteria) * 100);
+                
+                doc.setFontSize(14);
+                doc.setTextColor(64, 15, 19);
+                doc.text('RESUMO ESTATÍSTICO', 105, 40, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Total de Avaliações: ${evaluations.length}`, 20, 50);
+                doc.text(`Total de Critérios Avaliados: ${totalCriteria}`, 20, 58);
+                
+                doc.setFontSize(12);
+                doc.text('Distribuição de Avaliações:', 20, 70);
+                
+                // Gráfico de pizza simples (usando formas básicas)
+                const centerX = 160;
+                const centerY = 70;
+                const radius = 20;
+                
+                // Excelente (verde)
+                doc.setFillColor(64, 15, 19);
+                doc.circle(centerX, centerY, radius, 'F');
+                
+                // Bom (azul) - sobreposto parcialmente
+                doc.setFillColor(242, 154, 46);
+                doc.circle(centerX + 5, centerY, radius, 'F');
+                
+                // A melhorar (vermelho) - sobreposto parcialmente
+                doc.setFillColor(115, 6, 6);
+                doc.circle(centerX + 10, centerY, radius, 'F');
+                
+                // Legenda
+                doc.setFontSize(10);
+                doc.setTextColor(64, 15, 19);
+                doc.text(`Excelente: ${excellentPercent}%`, 20, 80);
+                doc.setTextColor(242, 154, 46);
+                doc.text(`Bom: ${goodPercent}%`, 20, 87);
+                doc.setTextColor(115, 6, 6);
+                doc.text(`A melhorar: ${improvePercent}%`, 20, 94);
+                doc.setTextColor(0, 0, 0);
+                
+                // Detalhes das avaliações
+                let startY = 110;
+                
+                evaluations.forEach((eval, index) => {
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setDrawColor(64, 15, 19);
+                    doc.setFillColor(191, 190, 144);
+                    doc.rect(10, startY, 190, 10, 'F');
+                    doc.setTextColor(64, 15, 19);
+                    doc.text(`Avaliação ${index + 1}: ${eval.class} - ${eval.date} - ${eval.trainer}`, 15, startY + 7);
+                    
+                    startY += 15;
+                    
+                    // Resumo por avaliação
+                    let evalExcellent = 0;
+                    let evalGood = 0;
+                    let evalImprove = 0;
+                    
+                    eval.evaluations.forEach(criterion => {
+                        if (criterion.rating === 'Excelente') evalExcellent++;
+                        else if (criterion.rating === 'Bom') evalGood++;
+                        else if (criterion.rating === 'A melhorar') evalImprove++;
+                    });
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Excelente: ${evalExcellent} | Bom: ${evalGood} | A melhorar: ${evalImprove}`, 20, startY);
+                    
+                    startY += 20;
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Leader\'s School - Sistema de Avaliação de Performance', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `${title.replace(/\s+/g, '_')}.pdf`;
+                doc.save(fileName);
+            }
+        });
     </script>
 </body>
 </html>
