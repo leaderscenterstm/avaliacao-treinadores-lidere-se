@@ -199,7 +199,7 @@
         }
 
         .card-title {
-            font-size: 15px;
+            font-size: 15;
             font-weight: 600;
             color: var(--ls-dark);
         }
@@ -1099,4 +1099,400 @@
                         backgroundColor: [
                             'rgba(191, 190, 144, 0.7)',
                             'rgba(242, 154, 46, 0.7)',
-                            'rg
+                            'rgba(191, 97, 42, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(191, 190, 144)',
+                            'rgb(242, 154, 46)',
+                            'rgb(191, 97, 42)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const axisData = {
+                    labels: ['Inteligência Emocional', 'Liderança & Business', 'Inglês'],
+                    datasets: [{
+                        label: 'Desempenho por Eixo',
+                        data: [82, 88, 75],
+                        backgroundColor: [
+                            'rgba(64, 15, 19, 0.7)',
+                            'rgba(191, 190, 144, 0.7)',
+                            'rgba(115, 6, 6, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(64, 15, 19)',
+                            'rgb(191, 190, 144)',
+                            'rgb(115, 6, 6)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const timelineData = {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+                    datasets: [{
+                        label: 'Desempenho Diário',
+                        data: [80, 85, 82, 88, 90],
+                        fill: false,
+                        borderColor: 'rgb(64, 15, 19)',
+                        tension: 0.1
+                    }]
+                };
+                
+                const ratingData = {
+                    labels: ['Excelente', 'Bom', 'A melhorar'],
+                    datasets: [{
+                        label: 'Distribuição de Avaliações',
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(64, 15, 19, 0.7)',
+                            'rgba(242, 154, 46, 0.7)',
+                            'rgba(115, 6, 6, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(64, 15, 19)',
+                            'rgb(242, 154, 46)',
+                            'rgb(115, 6, 6)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                // Renderizar gráficos
+                new Chart(document.getElementById('classPerformanceChart'), {
+                    type: 'bar',
+                    data: classData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('axisPerformanceChart'), {
+                    type: 'pie',
+                    data: axisData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+                
+                new Chart(document.getElementById('timelineChart'), {
+                    type: 'line',
+                    data: timelineData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                new Chart(document.getElementById('ratingDistributionChart'), {
+                    type: 'doughnut',
+                    data: ratingData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+            
+            // Função para salvar avaliação no localStorage
+            function saveEvaluation(evaluation) {
+                let evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                evaluations.push(evaluation);
+                localStorage.setItem('classEvaluations', JSON.stringify(evaluations));
+            }
+            
+            // Função para gerar PDF da avaliação
+            function generatePDF(evaluation) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(64, 15, 19);
+                doc.text('AVALIAÇÃO DE PERFORMANCE DA TURMA', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Data: ${evaluation.date} | Turno: ${evaluation.shift} | Turma: ${evaluation.class}`, 105, 22, { align: 'center' });
+                doc.text(`Treinador: ${evaluation.trainer} | Eixo: ${evaluation.axis}`, 105, 29, { align: 'center' });
+                
+                // Linha divisória
+                doc.setDrawColor(64, 15, 19);
+                doc.line(10, 35, 200, 35);
+                
+                // Título da tabela
+                doc.setFontSize(14);
+                doc.setTextColor(64, 15, 19);
+                doc.text('RESULTADOS DA AVALIAÇÃO', 105, 45, { align: 'center' });
+                
+                // Preparar dados da tabela
+                const tableData = [];
+                evaluation.evaluations.forEach((item, index) => {
+                    tableData.push([
+                        index + 1,
+                        item.criterion,
+                        item.rating,
+                        item.observations || 'Nenhuma'
+                    ]);
+                });
+                
+                // Gerar tabela
+                doc.autoTable({
+                    startY: 50,
+                    head: [['#', 'Critério', 'Avaliação', 'Observações']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [64, 15, 19]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    },
+                    margin: { top: 50 },
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3,
+                        overflow: 'linebreak'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 10 },
+                        1: { cellWidth: 80 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 50 }
+                    }
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Leader\'s School - Sistema de Avaliação de Performance', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `Avaliacao_${evaluation.class}_${evaluation.date.replace(/-/g, '')}.pdf`;
+                doc.save(fileName);
+            }
+            
+            // Função para gerar relatório semanal
+            function generateWeeklyReport() {
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                if (evaluations.length === 0) {
+                    alert('Não há avaliações salvas para gerar o relatório.');
+                    return;
+                }
+                
+                // Obter data atual e calcular início da semana (segunda-feira)
+                const today = new Date();
+                const dayOfWeek = today.getDay(); // 0 (domingo) a 6 (sábado)
+                const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - diffToMonday);
+                
+                // Formatar datas para comparação
+                const formatDate = (date) => {
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                };
+                
+                const mondayStr = formatDate(monday);
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                const sundayStr = formatDate(sunday);
+                
+                // Filtrar avaliações da semana atual
+                const weeklyEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    return evalDate >= new Date(mondayStr) && evalDate <= new Date(sundayStr);
+                });
+                
+                if (weeklyEvaluations.length === 0) {
+                    alert(`Não há avaliações para a semana de ${mondayStr} a ${sundayStr}.`);
+                    return;
+                }
+                
+                // Gerar PDF do relatório semanal
+                generateCustomReportPDF(weeklyEvaluations, `Relatório Semanal (${mondayStr} a ${sundayStr})`);
+                logAction(`Relatório semanal gerado para o período ${mondayStr} a ${sundayStr}`);
+            }
+            
+            // Função para gerar relatório personalizado (admin)
+            function generateCustomReport() {
+                const startDate = document.getElementById('report-start-date').value;
+                const endDate = document.getElementById('report-end-date').value;
+                const trainerFilter = document.getElementById('report-trainer').value;
+                const classFilter = document.getElementById('report-class').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Por favor, selecione um período para o relatório.');
+                    return;
+                }
+                
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
+                
+                // Filtrar avaliações conforme critérios
+                const filteredEvaluations = evaluations.filter(eval => {
+                    const evalDate = new Date(eval.date);
+                    const meetsDate = evalDate >= new Date(startDate) && evalDate <= new Date(endDate);
+                    const meetsTrainer = !trainerFilter || eval.trainer === trainerFilter;
+                    const meetsClass = !classFilter || eval.class === classFilter;
+                    
+                    return meetsDate && meetsTrainer && meetsClass;
+                });
+                
+                if (filteredEvaluations.length === 0) {
+                    alert('Não há avaliações que correspondam aos critérios selecionados.');
+                    return;
+                }
+                
+                generateCustomReportPDF(filteredEvaluations, `Relatório Personalizado (${startDate} a ${endDate})`);
+                logAction(`Relatório personalizado gerado com filtros: ${trainerFilter || 'Todos'}, ${classFilter || 'Todas'}`);
+            }
+            
+            // Função para gerar PDF de relatório personalizado
+            function generateCustomReportPDF(evaluations, title) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.setTextColor(64, 15, 19);
+                doc.text(title, 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Período: ${evaluations[0].date} a ${evaluations[evaluations.length - 1].date}`, 105, 22, { align: 'center' });
+                
+                // Linha divisória
+                doc.setDrawColor(64, 15, 19);
+                doc.line(10, 30, 200, 30);
+                
+                // Resumo estatístico
+                let excellentCount = 0;
+                let goodCount = 0;
+                let improveCount = 0;
+                let totalCriteria = 0;
+                
+                evaluations.forEach(eval => {
+                    eval.evaluations.forEach(criterion => {
+                        totalCriteria++;
+                        if (criterion.rating === 'Excelente') excellentCount++;
+                        else if (criterion.rating === 'Bom') goodCount++;
+                        else if (criterion.rating === 'A melhorar') improveCount++;
+                    });
+                });
+                
+                const excellentPercent = Math.round((excellentCount / totalCriteria) * 100);
+                const goodPercent = Math.round((goodCount / totalCriteria) * 100);
+                const improvePercent = Math.round((improveCount / totalCriteria) * 100);
+                
+                doc.setFontSize(14);
+                doc.setTextColor(64, 15, 19);
+                doc.text('RESUMO ESTATÍSTICO', 105, 40, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Total de Avaliações: ${evaluations.length}`, 20, 50);
+                doc.text(`Total de Critérios Avaliados: ${totalCriteria}`, 20, 58);
+                
+                doc.setFontSize(12);
+                doc.text('Distribuição de Avaliações:', 20, 70);
+                
+                // Gráfico de pizza simples (usando formas básicas)
+                const centerX = 160;
+                const centerY = 70;
+                const radius = 20;
+                
+                // Excelente (verde)
+                doc.setFillColor(64, 15, 19);
+                doc.circle(centerX, centerY, radius, 'F');
+                
+                // Bom (azul) - sobreposto parcialmente
+                doc.setFillColor(242, 154, 46);
+                doc.circle(centerX + 5, centerY, radius, 'F');
+                
+                // A melhorar (vermelho) - sobreposto parcialmente
+                doc.setFillColor(115, 6, 6);
+                doc.circle(centerX + 10, centerY, radius, 'F');
+                
+                // Legenda
+                doc.setFontSize(10);
+                doc.setTextColor(64, 15, 19);
+                doc.text(`Excelente: ${excellentPercent}%`, 20, 80);
+                doc.setTextColor(242, 154, 46);
+                doc.text(`Bom: ${goodPercent}%`, 20, 87);
+                doc.setTextColor(115, 6, 6);
+                doc.text(`A melhorar: ${improvePercent}%`, 20, 94);
+                doc.setTextColor(0, 0, 0);
+                
+                // Detalhes das avaliações
+                let startY = 110;
+                
+                evaluations.forEach((eval, index) => {
+                    if (startY > 250) {
+                        doc.addPage();
+                        startY = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setDrawColor(64, 15, 19);
+                    doc.setFillColor(191, 190, 144);
+                    doc.rect(10, startY, 190, 10, 'F');
+                    doc.setTextColor(64, 15, 19);
+                    doc.text(`Avaliação ${index + 1}: ${eval.class} - ${eval.date} - ${eval.trainer}`, 15, startY + 7);
+                    
+                    startY += 15;
+                    
+                    // Resumo por avaliação
+                    let evalExcellent = 0;
+                    let evalGood = 0;
+                    let evalImprove = 0;
+                    
+                    eval.evaluations.forEach(criterion => {
+                        if (criterion.rating === 'Excelente') evalExcellent++;
+                        else if (criterion.rating === 'Bom') evalGood++;
+                        else if (criterion.rating === 'A melhorar') evalImprove++;
+                    });
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Excelente: ${evalExcellent} | Bom: ${evalGood} | A melhorar: ${evalImprove}`, 20, startY);
+                    
+                    startY += 20;
+                });
+                
+                // Rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' });
+                    doc.text('Leader\'s School - Sistema de Avaliação de Performance', 105, 290, { align: 'center' });
+                }
+                
+                // Salvar PDF
+                const fileName = `${title.replace(/\s+/g, '_')}.pdf`;
+                doc.save(fileName);
+            }
+        });
+    </script>
+</body>
+</html>
