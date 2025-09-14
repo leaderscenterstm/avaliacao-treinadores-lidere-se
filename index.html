@@ -3,1344 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Avaliação de Treinamentos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Acesso ao Sistema</title>
     <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-gray: #f5f5f5;
-            --dark-gray: #333;
-        }
-        
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: #f9f9f9;
-            color: #333;
-            line-height: 1.6;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
         }
         
-        header {
-            background-color: var(--secondary-color);
+        .header {
+            background-color: #2c3e50;
             color: white;
-            padding: 1rem 0;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 2rem;
-            border-radius: 5px;
         }
         
-        h1, h2, h3, h4 {
-            margin-bottom: 1rem;
+        .header h1 {
+            font-size: 24px;
+            font-weight: 500;
         }
         
-        .card {
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        .content {
+            padding: 25px;
+        }
+        
+        .content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .perfil-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .perfil-btn {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .perfil-btn:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            transform: translateY(-2px);
+        }
+        
+        .login-form {
+            display: none;
+            animation: fadeIn 0.5s ease;
         }
         
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
         }
         
-        label {
+        .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
         }
         
-        select, input, textarea {
+        .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
         
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-            margin-right: 0.5rem;
-            margin-top: 0.5rem;
+        .form-group input:focus {
+            border-color: #6a11cb;
+            outline: none;
         }
         
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        .btn-success {
-            background-color: var(--success-color);
-        }
-        
-        .btn-success:hover {
-            background-color: #219a52;
-        }
-        
-        .btn-pdf {
-            background-color: #e74c3c;
-        }
-        
-        .btn-pdf:hover {
-            background-color: #c0392b;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .tabs {
+        .btn-group {
             display: flex;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
+            gap: 10px;
         }
         
-        .tab {
-            padding: 0.75rem 1.5rem;
-            background-color: var(--light-gray);
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            border-radius: 4px 4px 0 0;
-            margin-right: 0.25rem;
-            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            flex: 1;
         }
         
-        .tab.active {
-            background-color: var(--primary-color);
+        .btn-cancel {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #dee2e6;
+        }
+        
+        .btn-primary {
+            background-color: #6a11cb;
             color: white;
         }
         
-        .tab-content {
-            display: none;
+        .btn-primary:hover {
+            background-color: #5a0fb8;
         }
         
-        .tab-content.active {
+        .back-btn {
             display: block;
-        }
-        
-        /* ESTILOS PARA OS CRITÉRIOS DE AVALIAÇÃO */
-        .criteria-container {
-            margin-top: 1.5rem;
-        }
-        
-        .criteria-group {
-            margin-bottom: 2rem;
-            border-left: 4px solid var(--primary-color);
-            padding-left: 1rem;
-        }
-        
-        .criteria-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--secondary-color);
-            font-size: 1.2rem;
-        }
-        
-        .criteria-description {
-            color: #666;
-            margin-bottom: 1rem;
-            font-style: italic;
-        }
-        
-        .criteria-item {
-            margin-bottom: 1.5rem;
-            padding: 1.2rem;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-        }
-        
-        .rating-options {
-            display: flex;
-            gap: 1.5rem;
-            margin: 1rem 0;
-            flex-wrap: wrap;
-        }
-        
-        .rating-option {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .rating-option:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .rating-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-        }
-        
-        .rating-option label {
-            margin-bottom: 0;
-            font-weight: normal;
-            cursor: pointer;
-        }
-        
-        .rating-excellent {
-            color: var(--success-color);
-        }
-        
-        .rating-good {
-            color: var(--primary-color);
-        }
-        
-        .rating-improve {
-            color: var(--warning-color);
-        }
-        
-        .observations-field {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed #ddd;
-        }
-        
-        .notification {
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            color: white;
-        }
-        
-        .notification.success {
-            background-color: var(--success-color);
-        }
-        
-        .notification.error {
-            background-color: var(--danger-color);
-        }
-        
-        .evaluation-card {
-            border-left: 4px solid var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        .evaluation-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 1rem;
-        }
-        
-        .login-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .user-info {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .admin-only {
-            display: none;
-        }
-        
-        .trainer-only {
-            display: none;
-        }
-        
-        .performance-badge {
-            display: inline-block;
-            padding: 0.35rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-        
-        .performance-excellent {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .performance-good {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .performance-improve {
-            background-color: var(--warning-color);
-            color: white;
-        }
-        
-        .user-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .user-button {
-            padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
             text-align: center;
-            transition: all 0.3s;
-            font-size: 1rem;
+            margin-top: 15px;
+            color: #6a11cb;
+            cursor: pointer;
+            text-decoration: underline;
         }
         
-        .user-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        .coord-button {
-            background-color: var(--secondary-color);
-            grid-column: 1 / -1;
-            margin-top: 10px;
-        }
-        
-        .coord-button:hover {
-            background-color: #1e2a36;
-        }
-        
-        .password-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .password-modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        @media (max-width: 768px) {
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                margin-bottom: 0.25rem;
-                border-radius: 4px;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .rating-options {
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-            
-            .criteria-item {
-                padding: 1rem;
-            }
-            
-            .user-buttons {
-                grid-template-columns: 1fr;
-            }
+        .active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="login-page">
-        <div class="login-container">
-            <h2 style="text-align: center;">Acesso ao Sistema</h2>
-            <p style="text-align: center; margin-bottom: 20px;">Selecione seu perfil para acessar o sistema</p>
-            
-            <div class="user-buttons">
-                <button class="user-button" data-user="Luma Mell" data-role="trainer">Luma Mell</button>
-                <button class="user-button" data-user="Ian Cunha" data-role="trainer">Ian Cunha</button>
-                <button class="user-button" data-user="Susej Cristo" data-role="trainer">Susej Cristo</button>
-                <button class="user-button" data-user="Nathalie Benitah" data-role="trainer">Nathalie Benitah</button>
-                <button class="user-button" data-user="Fellipe Figueira" data-role="trainer">Fellipe Figueira</button>
-                <button class="user-button coord-button" id="coord-access-btn">Acesso da Coordenação</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="password-modal" class="password-modal hidden">
-        <div class="password-modal-content">
-            <h3>Acesso da Coordenação</h3>
-            <p>Digite a senha de administrador para continuar:</p>
-            <div class="form-group">
-                <input type="password" id="admin-password" placeholder="Senha de administrador">
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <button id="cancel-password" class="btn-danger">Cancelar</button>
-                <button id="submit-password" class="btn-success">Acessar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="app-container" class="hidden">
-        <header>
-            <h1>Sistema de Avaliação de Treinamentos</h1>
-        </header>
-        
-        <div class="user-info">
-            <span id="user-display">Usuário: <span id="current-user"></span> (<span id="user-role"></span>)</span>
-            <button class="logout-btn" id="logout-btn">Sair</button>
+    <div class="container">
+        <div class="header">
+            <h1>Acesso ao Sistema</h1>
         </div>
         
-        <div class="container">
-            <div class="tabs">
-                <div class="tab active" data-tab="form">Nova Avaliação</div>
-                <div class="tab" data-tab="report">Relatório Semanal</div>
-                <div class="tab" data-tab="evaluations">Minhas Avaliações</div>
-                <div class="tab admin-only" data-tab="dashboard">Dashboard</div>
-                <div class="tab admin-only" data-tab="all-evaluations">Todas as Avaliações</div>
-                <div class="tab admin-only" data-tab="logs">Registros de Log</div>
+        <div class="content">
+            <h2>Selecione seu perfil para acessar o sistema</h2>
+            
+            <div class="perfil-options" id="perfilOptions">
+                <div class="perfil-btn" onclick="showLoginForm('coord')">Coordenação</div>
+                <div class="perfil-btn" onclick="showLoginForm('professor')">Professor</div>
+                <div class="perfil-btn" onclick="showLoginForm('aluno')">Aluno</div>
             </div>
             
-            <div id="form-tab" class="tab-content active">
-                <div class="card">
-                    <h2>Registro de Avaliação Diária</h2>
-                    <form id="evaluation-form">
-                        <div class="form-group">
-                            <label for="trainer-name">Nome do Treinador</label>
-                            <select id="trainer-name" required>
-                                <option value="">Selecione o treinador</option>
-                                <option value="Luma Mell">Luma Mell</option>
-                                <option value="Ian Cunha">Ian Cunha</option>
-                                <option value="Susej Cristo">Susej Cristo</option>
-                                <option value="Nathalie Benitah">Nathalie Benitah</option>
-                                <option value="Fellipe Figueira">Fellipe Figueira</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="axis">Eixo</label>
-                            <select id="axis" required>
-                                <option value="">Selecione o eixo</option>
-                                <option value="Inteligência Emocional">Inteligência Emocional</option>
-                                <option value="Liderança & Business">Liderança & Business</option>
-                                <option value="Inglês">Inglês</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="date">Data</label>
-                            <input type="date" id="date" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="shift">Turno</label>
-                            <select id="shift" required>
-                                <option value="">Selecione o turno</option>
-                                <option value="Manhã">Manhã</option>
-                                <option value="Tarde">Tarde</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="class">Turma</label>
-                            <select id="class" required>
-                                <option value="">Selecione a turma</option>
-                                <option value="Foundation Ter/Qui">Foundation Ter/Qui</option>
-                                <option value="Foundation Seg/Qua">Foundation Seg/Qua</option>
-                                <option value="Discovery Ter/Qui">Discovery Ter/Qui</option>
-                                <option value="Discovery Seg/Qua">Discovery Seg/Qua</option>
-                                <option value="Challenge Ter/Qui">Challenge Ter/Qui</option>
-                                <option value="Challenge Seg/Qua">Challenge Seg/Qua</option>
-                            </select>
-                        </div>
-                        
-                        <div class="card">
-                            <h3>Indicadores de Performance</h3>
-                            <div id="performance-criteria">
-                                <p>Selecione uma turma para carregar os critérios de avaliação...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="general-observations">Observações Gerais</label>
-                            <textarea id="general-observations" rows="4" placeholder="Observações gerais sobre a turma..."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn-success">Registrar Avaliação</button>
-                    </form>
+            <div class="login-form" id="loginForm">
+                <h2 id="formTitle">Acesso da Coordenação</h2>
+                
+                <div class="form-group">
+                    <label for="senha">Digite a senha de administrador para continuar:</label>
+                    <input type="password" id="senha" placeholder="Senha de administrador">
                 </div>
-            </div>
-            
-            <div id="report-tab" class="tab-content">
-                <div class="card">
-                    <h2>Relatório Semanal</h2>
-                    
-                    <div class="form-group">
-                        <label for="report-week">Selecione a semana:</label>
-                        <input type="week" id="report-week">
-                    </div>
-                    
-                    <button id="generate-report" class="btn-success">Gerar Relatório</button>
-                    
-                    <div id="report-results" class="hidden">
-                        <h3>Resultados da Semana</h3>
-                        <div id="report-content"></div>
-                    </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-cancel" onclick="goBack()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="acessarSistema()">Acessar</button>
                 </div>
-            </div>
-            
-            <div id="evaluations-tab" class="tab-content">
-                <div class="card">
-                    <h2>Minhas Avaliações</h2>
-                    <div id="saved-evaluations">
-                        <p>Carregando avaliações...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="dashboard-tab" class="tab-content">
-                <div class="card">
-                    <h2>Dashboard de Métricas</h2>
-                    
-                    <div class="card">
-                        <h3>Estatísticas de Performance</h3>
-                        <div id="dashboard-stats">
-                            <p>Selecione uma turma e período para visualizar as estatísticas.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="all-evaluations-tab" class="tab-content">
-                <div class="card">
-                    <h2>Todas as Avaliações</h2>
-                    <div class="form-group">
-                        <label for="search-evaluations">Buscar:</label>
-                        <input type="text" id="search-evaluations" placeholder="Digite para filtrar...">
-                    </div>
-                    <div id="all-evaluations-list">
-                        <p>Carregando todas as avaliações...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="logs-tab" class="tab-content">
-                <div class="card">
-                    <h2>Registros de Log do Sistema</h2>
-                    <div class="form-group">
-                        <label for="search-logs">Buscar:</label>
-                        <input type="text" id="search-logs" placeholder="Digite para filtrar logs...">
-                    </div>
-                    <button id="export-logs" class="btn-success">Exportar Logs</button>
-                    <div id="logs-list">
-                        <p>Carregando logs do sistema...</p>
-                    </div>
-                </div>
+                
+                <div class="back-btn" onclick="goBack()">← Voltar para seleção de perfil</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Inicializar o jsPDF
-        const { jsPDF } = window.jspdf;
-        
-        // Senha de administrador
-        const ADMIN_PASSWORD = 'admin123';
-        
-        // Critérios de performance por tipo de turma
-        const performanceCriteria = {
-            'Foundation': [
-                {
-                    id: 'participation',
-                    title: 'Participação',
-                    description: 'A turma participou ativamente das atividades propostas?'
-                },
-                {
-                    id: 'understanding',
-                    title: 'Compreensão',
-                    description: 'Demonstrou compreender os conceitos de forma adequada para a idade?'
-                },
-                {
-                    id: 'practice',
-                    title: 'Prática',
-                    description: 'Conseguiu colocar em prática a atividade/jogo da aula como grupo?'
-                },
-                {
-                    id: 'interaction',
-                    title: 'Interação',
-                    description: 'Interagiu bem entre si durante a experiência?'
-                },
-                {
-                    id: 'posture',
-                    title: 'Postura',
-                    description: 'Manteve postura and atitude compatíveis (escuta, espera, respeito)?'
-                }
-            ],
-            'Discovery': [
-                {
-                    id: 'attention',
-                    title: 'Atenção e Engajamento',
-                    description: 'A turma manteve bom nível de atenção e engajamento nas atividades?'
-                },
-                {
-                    id: 'content',
-                    title: 'Domínio do Conteúdo',
-                    description: 'Demonstrou domínio básico do conteúdo trabalhado em aula?'
-                },
-                {
-                    id: 'application',
-                    title: 'Aplicação Prática',
-                    description: 'Aplicou o que aprendeu durante a experiência prática como grupo?'
-                },
-                {
-                    id: 'collaboration',
-                    title: 'Colaboração',
-                    description: 'Colaborou e se entrosou no desenvolvimento das atividades?'
-                },
-                {
-                    id: 'leadership',
-                    title: 'Liderança',
-                    description: 'Demonstrou postura adequada de líderes em formação (confiança, respeito, organização)?'
-                }
-            ],
-            'Challenge': [
-                {
-                    id: 'engagement',
-                    title: 'Engajamento',
-                    description: 'A turma se manteve engajada e atenta ao longo da aula?'
-                },
-                {
-                    id: 'mastery',
-                    title: 'Domínio do Conteúdo',
-                    description: 'Apresentou domínio do conteúdo de forma clara e consistente?'
-                },
-                {
-                    id: 'application',
-                    title: 'Aplicação do Aprendizado',
-                    description: 'Conseguiu aplicar o aprendizado nas práticas e apresentações como grupo?'
-                },
-                {
-                    id: 'cooperation',
-                    title: 'Cooperação e Liderança',
-                    description: 'Atuou em cooperação e liderança durante as atividades?'
-                },
-                {
-                    id: 'responsibility',
-                    title: 'Responsabilidade',
-                    description: 'Demonstrou responsabilidade e maturidade no comportamento coletivo?'
-                }
-            ]
-        };
-        
-        let currentUser = null;
-        let currentClassType = '';
-        
-        // Função para registrar logs
-        function logAction(action, details = '') {
-            const timestamp = new Date().toISOString();
-            const logEntry = {
-                timestamp,
-                user: currentUser ? currentUser.name : 'unknown',
-                action,
-                details
-            };
+        function showLoginForm(perfil) {
+            document.getElementById('perfilOptions').style.display = 'none';
+            document.getElementById('loginForm').classList.add('active');
             
-            // Salvar no localStorage
-            let logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
-            logs.push(logEntry);
-            localStorage.setItem('systemLogs', JSON.stringify(logs));
+            // Altera o título conforme o perfil selecionado
+            const formTitle = document.getElementById('formTitle');
             
-            return logEntry;
+            if (perfil === 'coord') {
+                formTitle.textContent = 'Acesso da Coordenação';
+                document.querySelector('label[for="senha"]').textContent = 'Digite a senha de administrador para continuar:';
+                document.getElementById('senha').placeholder = 'Senha de administrador';
+            } else if (perfil === 'professor') {
+                formTitle.textContent = 'Acesso do Professor';
+                document.querySelector('label[for="senha"]').textContent = 'Digite sua senha de professor:';
+                document.getElementById('senha').placeholder = 'Senha de professor';
+            } else if (perfil === 'aluno') {
+                formTitle.textContent = 'Acesso do Aluno';
+                document.querySelector('label[for="senha"]').textContent = 'Digite sua senha de aluno:';
+                document.getElementById('senha').placeholder = 'Senha de aluno';
+            }
         }
         
-        // Função para inicializar a aplicação
-        function initApp() {
-            // Inicializar armazenamento se não existir
-            if (!localStorage.getItem('evaluations')) {
-                localStorage.setItem('evaluations', JSON.stringify([]));
-                logAction('SYSTEM_INIT', 'Sistema inicializado pela primeira vez');
-            }
-            
-            // Inicializar logs se não existir
-            if (!localStorage.getItem('systemLogs')) {
-                localStorage.setItem('systemLogs', JSON.stringify([]));
-            }
-            
-            // Configurar data atual como padrão
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('date').value = formattedDate;
-            
-            // Configurar a semana atual como padrão
-            const year = today.getFullYear();
-            const weekNumber = getWeekNumber(today);
-            document.getElementById('report-week').value = `${year}-W${weekNumber.toString().padStart(2, '0')}`;
-            
-            // Configurar botões de usuário
-            document.querySelectorAll('.user-button:not(.coord-button)').forEach(button => {
-                button.addEventListener('click', function() {
-                    const userName = this.getAttribute('data-user');
-                    
-                    // Login direto para treinadores
-                    currentUser = {
-                        username: userName.toLowerCase().replace(' ', ''),
-                        role: 'trainer',
-                        name: userName
-                    };
-                    
-                    // Salvar usuário atual no sessionStorage
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Registrar log de login
-                    logAction('USER_LOGIN', `Treinador ${userName} acessou o sistema`);
-                    
-                    // Inicializar aplicação
-                    initializeAppForUser();
-                });
-            });
-            
-            // Configurar botão de acesso da coordenação
-            document.getElementById('coord-access-btn').addEventListener('click', function() {
-                // Mostrar modal para senha de administração
-                document.getElementById('password-modal').classList.remove('hidden');
-            });
-            
-            // Configurar modal de senha
-            document.getElementById('cancel-password').addEventListener('click', function() {
-                document.getElementById('password-modal').classList.add('hidden');
-                document.getElementById('admin-password').value = '';
-            });
-            
-            document.getElementById('submit-password').addEventListener('click', function() {
-                const password = document.getElementById('admin-password').value;
-                
-                if (password === ADMIN_PASSWORD) {
-                    currentUser = {
-                        username: 'admin',
-                        role: 'admin',
-                        name: 'Coordenação'
-                    };
-                    
-                    // Salvar usuário atual no sessionStorage
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Registrar log de login
-                    logAction('ADMIN_LOGIN', 'Coordenação acessou o sistema');
-                    
-                    // Fechar modal e inicializar aplicação
-                    document.getElementById('password-modal').classList.add('hidden');
-                    document.getElementById('admin-password').value = '';
-                    
-                    // Inicializar aplicação
-                    initializeAppForUser();
-                } else {
-                    alert('Senha incorreta!');
-                    document.getElementById('admin-password').value = '';
-                }
-            });
-            
-            // Configurar logout
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                logAction('USER_LOGOUT', `Usuário ${currentUser.name} saiu do sistema`);
-                sessionStorage.removeItem('currentUser');
-                currentUser = null;
-                document.getElementById('login-page').classList.remove('hidden');
-                document.getElementById('app-container').classList.add('hidden');
-            });
-            
-            // Detectar mudança na seleção de turma
-            document.getElementById('class').addEventListener('change', function() {
-                const selectedClass = this.value;
-                if (selectedClass) {
-                    // Determinar o tipo de turma (Foundation, Discovery, Challenge)
-                    if (selectedClass.includes('Foundation')) {
-                        currentClassType = 'Foundation';
-                    } else if (selectedClass.includes('Discovery')) {
-                        currentClassType = 'Discovery';
-                    } else if (selectedClass.includes('Challenge')) {
-                        currentClassType = 'Challenge';
-                    } else {
-                        currentClassType = '';
-                    }
-                    
-                    // Carregar critérios de avaliação apropriados
-                    loadPerformanceCriteria(currentClassType);
-                    
-                    // Registrar log
-                    logAction('CLASS_SELECTED', `Turma selecionada: ${selectedClass}`);
-                }
-            });
-            
-            // Alternar entre abas
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    if (this.style.display === 'none') return;
-                    
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    // Ativar aba clicada
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Mostrar conteúdo correspondente
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(`${tabName}-tab`).classList.add('active');
-                    
-                    // Carregar dados específicos da aba
-                    if (tabName === 'evaluations') {
-                        loadUserEvaluations();
-                    } else if (tabName === 'all-evaluations' && currentUser && currentUser.role === 'admin') {
-                        loadAllEvaluations();
-                    } else if (tabName === 'logs' && currentUser && currentUser.role === 'admin') {
-                        loadSystemLogs();
-                    }
-                    
-                    // Registrar log
-                    logAction('TAB_SWITCH', `Aba acessada: ${tabName}`);
-                });
-            });
-            
-            // Processar formulário de avaliação
-            document.getElementById('evaluation-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Coletar avaliações dos critérios
-                const criteriaEvaluations = {};
-                const criteriaElements = document.querySelectorAll('.criteria-item');
-                
-                let allCriteriaFilled = true;
-                criteriaElements.forEach(criteria => {
-                    const criterionId = criteria.getAttribute('data-criterion');
-                    const selectedValue = criteria.querySelector('input[name="performance-' + criterionId + '"]:checked');
-                    const observations = criteria.querySelector('textarea').value;
-                    
-                    if (!selectedValue) {
-                        allCriteriaFilled = false;
-                        criteria.style.border = '1px solid var(--danger-color)';
-                    } else {
-                        criteria.style.border = '1px solid #eee';
-                    }
-                    
-                    criteriaEvaluations[criterionId] = {
-                        value: selectedValue ? selectedValue.value : '',
-                        observations: observations
-                    };
-                });
-                
-                if (!allCriteriaFilled) {
-                    alert('Por favor, avalie todos os critérios antes de enviar.');
-                    logAction('EVALUATION_ERROR', 'Avaliação não preenchida completamente');
-                    return;
-                }
-                
-                const evaluation = {
-                    trainer: document.getElementById('trainer-name').value,
-                    axis: document.getElementById('axis').value,
-                    date: document.getElementById('date').value,
-                    shift: document.getElementById('shift').value,
-                    class: document.getElementById('class').value,
-                    classType: currentClassType,
-                    criteria: criteriaEvaluations,
-                    generalObservations: document.getElementById('general-observations').value,
-                    timestamp: new Date().toISOString(),
-                    user: currentUser.name
-                };
-                
-                // Salvar avaliação
-                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                evaluations.push(evaluation);
-                localStorage.setItem('evaluations', JSON.stringify(evaluations));
-                
-                // Registrar log
-                logAction('EVALUATION_SUBMITTED', `Avaliação registrada para a turma: ${evaluation.class}`);
-                
-                // Gerar PDF
-                generateEvaluationPDF(evaluation);
-                
-                // Limpar formulário
-                this.reset();
-                document.getElementById('date').value = formattedDate;
-                document.getElementById('performance-criteria').innerHTML = '<p>Selecione uma turma para carregar os critérios de avaliação...</p>';
-                
-                // Mostrar mensagem de sucesso
-                alert('Avaliação registrada com sucesso! PDF gerado.');
-            });
-            
-            // Gerar relatório
-            document.getElementById('generate-report').addEventListener('click', function() {
-                const weekValue = document.getElementById('report-week').value;
-                if (!weekValue) {
-                    alert('Selecione uma semana para gerar o relatório.');
-                    return;
-                }
-                
-                const [year, week] = weekValue.split('-W');
-                const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-                
-                // Filtrar avaliações da semana selecionada
-                let weekEvaluations;
-                if (currentUser.role === 'admin') {
-                    weekEvaluations = evaluations.filter(eval => {
-                        const evalDate = new Date(eval.date);
-                        const evalWeek = getWeekNumber(evalDate);
-                        const evalYear = evalDate.getFullYear();
-                        
-                        return evalYear == year && evalWeek == week;
-                    });
-                } else {
-                    weekEvaluations = evaluations.filter(eval => {
-                        const evalDate = new Date(eval.date);
-                        const evalWeek = getWeekNumber(evalDate);
-                        const evalYear = evalDate.getFullYear();
-                        
-                        return evalYear == year && evalWeek == week && eval.user === currentUser.name;
-                    });
-                }
-                
-                if (weekEvaluations.length === 0) {
-                    document.getElementById('report-results').classList.add('hidden');
-                    alert('Nenhuma avaliação encontrada para a semana selecionada.');
-                    logAction('REPORT_GENERATED', `Relatório vazio para a semana ${weekValue}`);
-                    return;
-                }
-                
-                // Registrar log
-                logAction('REPORT_GENERATED', `Relatório gerado para a semana ${weekValue} com ${weekEvaluations.length} avaliações`);
-                
-                // Gerar relatório
-                generateReport(weekEvaluations, weekValue);
-                document.getElementById('report-results').classList.remove('hidden');
-            });
-            
-            // Configurar busca para todas as avaliações (admin)
-            document.getElementById('search-evaluations').addEventListener('input', function() {
-                loadAllEvaluations(this.value);
-            });
-            
-            // Configurar busca para logs (admin)
-            document.getElementById('search-logs').addEventListener('input', function() {
-                loadSystemLogs(this.value);
-            });
-            
-            // Configurar exportação de logs
-            document.getElementById('export-logs').addEventListener('click', function() {
-                exportLogsToFile();
-            });
+        function goBack() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('perfilOptions').style.display = 'flex';
+            document.getElementById('senha').value = '';
         }
         
-        // Função para inicializar a aplicação para o usuário logado
-        function initializeAppForUser() {
-            // Mostrar aplicação
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            
-            // Atualizar interface com informações do usuário
-            document.getElementById('current-user').textContent = currentUser.name;
-            document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Coordenação' : 'Treinador';
-            
-            // Mostrar/ocultar funcionalidades baseado no papel
-            if (currentUser.role === 'admin') {
-                document.querySelectorAll('.admin-only').forEach(el => {
-                    el.style.display = 'block';
-                });
-                document.querySelectorAll('.trainer-only').forEach(el => {
-                    el.style.display = 'none';
-                });
-                loadAllEvaluations();
-                loadSystemLogs();
-            } else {
-                document.querySelectorAll('.admin-only').forEach(el => {
-                    el.style.display = 'none';
-                });
-                document.querySelectorAll('.trainer-only').forEach(el => {
-                    el.style.display = 'block';
-                });
-                
-                // Preencher automaticamente o nome do treinador no formulário
-                document.getElementById('trainer-name').value = currentUser.name;
-            }
-            
-            // Carregar dados iniciais
-            loadUserEvaluations();
-        }
-        
-        // Função para carregar critérios de performance baseados no tipo de turma
-        function loadPerformanceCriteria(classType) {
-            const container = document.getElementById('performance-criteria');
-            
-            if (!classType || !performanceCriteria[classType]) {
-                container.innerHTML = '<p>Selecione uma turma válida para carregar os critérios de avaliação.</p>';
+        function acessarSistema() {
+            const senha = document.getElementById('senha').value;
+            if (!senha) {
+                alert('Por favor, digite sua senha.');
                 return;
             }
             
-            let html = `
-                <div class="criteria-container">
-                    <h4>Critérios de Performance - ${classType}</h4>
-            `;
-            
-            performanceCriteria[classType].forEach(criterion => {
-                html += `
-                <div class="criteria-item" data-criterion="${criterion.id}">
-                    <div class="criteria-title">${criterion.title}</div>
-                    <div class="criteria-description">${criterion.description}</div>
-                    
-                    <div class="rating-options">
-                        <div class="rating-option rating-excellent">
-                            <input type="radio" id="${criterion.id}-excellent" name="performance-${criterion.id}" value="Excelente" required>
-                            <label for="${criterion.id}-excellent">Excelente</label>
-                        </div>
-                        <div class="rating-option rating-good">
-                            <input type="radio" id="${criterion.id}-good" name="performance-${criterion.id}" value="Bom">
-                            <label for="${criterion.id}-good">Bom</label>
-                        </div>
-                        <div class="rating-option rating-improve">
-                            <input type="radio" id="${criterion.id}-improve" name="performance-${criterion.id}" value="A melhorar">
-                            <label for="${criterion.id}-improve">A melhorar</label>
-                        </div>
-                    </div>
-                    
-                    <div class="observations-field">
-                        <div class="form-group">
-                            <label for="observations-${criterion.id}">Observações:</label>
-                            <textarea id="observations-${criterion.id}" rows="2" placeholder="Observações sobre este critério..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                `;
-            });
-            
-            html += `</div>`;
-            container.innerHTML = html;
+            // Aqui viria a lógica de autenticação real
+            alert('Acesso realizado com sucesso! Redirecionando...');
+            // window.location.href = 'painel.html'; // Redirecionamento real
         }
-        
-        // Função para obter número da semana
-        function getWeekNumber(date) {
-            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-        }
-        
-        // Função para carregar avaliações do usuário
-        function loadUserEvaluations() {
-            if (!currentUser) return;
-            
-            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-            const userEvaluations = evaluations.filter(eval => eval.user === currentUser.name);
-            
-            const container = document.getElementById('saved-evaluations');
-            
-            if (userEvaluations.length === 0) {
-                container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            userEvaluations.forEach((evaluation, index) {
-                const evalElement = document.createElement('div');
-                evalElement.className = 'evaluation-card card';
-                
-                let criteriaHtml = '';
-                for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
-                    let badgeClass = '';
-                    if (data.value === 'Excelente') badgeClass = 'performance-excellent';
-                    if (data.value === 'Bom') badgeClass = 'performance-good';
-                    if (data.value === 'A melhorar') badgeClass = 'performance-improve';
-                    
-                    criteriaHtml += `
-                        <div style="margin-bottom: 1rem;">
-                            <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
-                            ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
-                        </div>
-                    `;
-                }
-                
-                evalElement.innerHTML = `
-                    <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
-                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
-                    <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                    <div class="criteria-results">
-                        ${criteriaHtml}
-                    </div>
-                    ${evaluation.generalObservations ? `<p><strong>Observações Gerais:</strong> ${evaluation.generalObservations}</p>` : ''}
-                    <div class="evaluation-actions">
-                        <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
-                    </div>
-                `;
-                
-                container.appendChild(evalElement);
-            });
-            
-            // Adicionar event listeners para os botões de PDF
-            container.querySelectorAll('.btn-pdf').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = this.getAttribute('data-index');
-                    generateEvaluationPDF(userEvaluations[index]);
-                    logAction('PDF_GENERATED', `PDF gerado para avaliação ${index}`);
-                });
-            });
-        }
-        
-        // Função para carregar todas as avaliações (admin)
-        function loadAllEvaluations(searchTerm = '') {
-            if (!currentUser || currentUser.role !== 'admin') return;
-            
-            const evaluations = JSON.parse(localStorage.getItem('evaluations'));
-            
-            const container = document.getElementById('all-evaluations-list');
-            
-            if (evaluations.length === 0) {
-                container.innerHTML = '<p>Nenhuma avaliação encontrada.</p>';
-                return;
-            }
-            
-            // Filtrar avaliações se houver termo de busca
-            let filteredEvaluations = evaluations;
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                filteredEvaluations = evaluations.filter(eval => 
-                    eval.trainer.toLowerCase().includes(term) ||
-                    eval.axis.toLowerCase().includes(term) ||
-                    eval.class.toLowerCase().includes(term) ||
-                    eval.user.toLowerCase().includes(term)
-                );
-            }
-            
-            container.innerHTML = '';
-            filteredEvaluations.forEach((evaluation, index) {
-                const evalElement = document.createElement('div');
-                evalElement.className = 'evaluation-card card';
-                
-                let criteriaHtml = '';
-                for (const [criterionId, data] of Object.entries(evaluation.criteria)) {
-                    let badgeClass = '';
-                    if (data.value === 'Excelente') badgeClass = 'performance-excellent';
-                    if (data.value === 'Bom') badgeClass = 'performance-good';
-                    if (data.value === 'A melhorar') badgeClass = 'performance-improve';
-                    
-                    criteriaHtml += `
-                        <div style="margin-bottom: 1rem;">
-                            <p><strong>${criterionId}:</strong> <span class="performance-badge ${badgeClass}">${data.value}</span></p>
-                            ${data.observations ? `<p><em>${data.observations}</em></p>` : ''}
-                        </div>
-                    `;
-                }
-                
-                evalElement.innerHTML = `
-                    <h3>${evaluation.class} - ${formatDate(evaluation.date)}</h3>
-                    <p><strong>Usuário:</strong> ${evaluation.user}</p>
-                    <p><strong>Treinador:</strong> ${evaluation.trainer}</p>
-                    <p><strong>Eixo:</strong> ${evaluation.axis}</p>
-                    <p><strong>Turno:</strong> ${evaluation.shift}</p>
-                    <div class="criteria-results">
-                        ${criteriaHtml}
-                    </div>
-                    ${evaluation.generalObservations ? `<p><strong>Observações Gerais:</strong> ${evaluation.generalObservations}</p>` : ''}
-                    <div class="evaluation-actions">
-                        <button class="btn-pdf" data-index="${index}">Gerar PDF</button>
-                    </div>
-                `;
-                
-                container.appendChild(evalElement);
-            });
-            
-            // Adicionar event listeners para os botões de PDF
-            container.querySelectorAll('.btn-pdf').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = this.getAttribute('data-index');
-                    generateEvaluationPDF(filteredEvaluations[index]);
-                    logAction('PDF_GENERATED', `PDF gerado para avaliação ${index} (admin)`);
-                });
-            });
-        }
-        
-        // Função para carregar logs do sistema (admin)
-        function loadSystemLogs(searchTerm = '') {
-            if (!currentUser || currentUser.role !== 'admin') return;
-            
-            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
-            
-            const container = document.getElementById('logs-list');
-            
-            if (logs.length === 0) {
-                container.innerHTML = '<p>Nenhum registro de log encontrado.</p>';
-                return;
-            }
-            
-            // Filtrar logs se houver termo de busca
-            let filteredLogs = logs;
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                filteredLogs = logs.filter(log => 
-                    log.user.toLowerCase().includes(term) ||
-                    log.action.toLowerCase().includes(term) ||
-                    log.details.toLowerCase().includes(term) ||
-                    log.timestamp.toLowerCase().includes(term)
-                );
-            }
-            
-            // Ordenar logs por timestamp (mais recente primeiro)
-            filteredLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            container.innerHTML = '';
-            filteredLogs.forEach((log, index) {
-                const logElement = document.createElement('div');
-                logElement.className = 'card';
-                logElement.style.marginBottom = '10px';
-                
-                logElement.innerHTML = `
-                    <p><strong>Data/Hora:</strong> ${formatDateTime(log.timestamp)}</p>
-                    <p><strong>Usuário:</strong> ${log.user}</p>
-                    <p><strong>Ação:</strong> ${log.action}</p>
-                    <p><strong>Detalhes:</strong> ${log.details}</p>
-                `;
-                
-                container.appendChild(logElement);
-            });
-        }
-        
-        // Função para exportar logs para arquivo de texto
-        function exportLogsToFile() {
-            const logs = JSON.parse(localStorage.getItem('systemLogs') || '[]');
-            
-            if (logs.length === 0) {
-                alert('Nenhum registro de log para exportar.');
-                return;
-            }
-            
-            // Ordenar logs por timestamp (mais recente primeiro)
-            logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            let logText = 'REGISTROS DE LOG - SISTEMA DE AVALIAÇÃO DE TREINAMENTOS\n';
-            logText += '===========================================================\n\n';
-            
-            logs.forEach(log => {
-                logText += `TIMESTAMP: ${formatDateTime(log.timestamp)}\n`;
-                logText += `USUÁRIO: ${log.user}\n`;
-                logText += `AÇÃO: ${log.action}\n`;
-                logText += `DETALHES: ${log.details}\n`;
-                logText += '----------------------------------------\n\n';
-            });
-            
-            // Criar blob e fazer download
-            const blob = new Blob([logText], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `logs-sistema-${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            
-            logAction('LOGS_EXPORTED', 'Logs do sistema exportados para arquivo de texto');
-            alert('Logs exportados com sucesso!');
-        }
-        
-        // Função para gerar relatório
-        function generateReport(evaluations, weekValue) {
-            const reportContent = document.getElementById('report-content');
-            reportContent.innerHTML = '';
-            
-            // Agrupar avaliações por turma
-            const classes = {};
-            evaluations.forEach(eval => {
-                if (!classes[eval.class]) {
-                    classes[eval.class] = [];
-                }
-                classes[eval.class].push(eval);
-            });
-            
-            // Calcular médias e criar relatório
-            for (const [className, classEvals] of Object.entries(classes)) {
-                const classSection = document.createElement('div');
-                classSection.className = 'card';
-                
-                // Cabeçalho da turma
-                classSection.innerHTML = `<h3>Turma: ${className}</h3>`;
-                
-                // Tabela de avaliações
-                const table = document.createElement('table');
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Treinador</th>
-                            <th>Eixo</th>
-                            <th>Turno</th>
-                            <th>Performance</th>
-                            <th>Observações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                `;
-                
-                const tbody = table.querySelector('tbody');
-                
-                // Preencher tabela com avaliações
-                classEvals.forEach(eval => {
-                    // Calcular performance média
-                    let excellentCount = 0;
-                    let goodCount = 0;
-                    let improveCount = 0;
-                    
-                    for (const criterion of Object.values(eval.criteria)) {
-                        if (criterion.value === 'Excelente') excellentCount++;
-                        if (criterion.value === 'Bom') goodCount++;
-                        if (criterion.value === 'A melhorar') improveCount++;
-                    }
-                    
-                    let performanceText = '';
-                    if (excellentCount > goodCount && excellentCount > improveCount) {
-                        performanceText = '<span class="performance-badge performance-excellent">Excelente</span>';
-                    } else if (goodCount > excellentCount && goodCount > improveCount) {
-                        performanceText = '<span class="performance-badge performance-good">Boa</span>';
-                    } else {
-                        performanceText = '<span class="performance-badge performance-improve">A melhorar</span>';
-                    }
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${formatDate(eval.date)}</td>
-                        <td>${eval.trainer}</td>
-                        <td>
+    </script>
+</body>
+</html>
