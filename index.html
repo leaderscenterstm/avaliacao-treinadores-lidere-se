@@ -199,7 +199,7 @@
         }
 
         .card-title {
-            font-size: 15;
+            font-size: 15px;
             font-weight: 600;
             color: var(--ls-dark);
         }
@@ -307,36 +307,57 @@
             background-color: var(--ls-light);
         }
 
-        /* Critérios de avaliação */
-        .criteria-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
+        /* Critérios de avaliação - NOVA DIAGRAMAÇÃO */
+        .criteria-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .criteria-card {
-            border: 1px solid var(--macos-border);
+        .criterion-item {
+            background-color: #f9f9f9;
             border-radius: 8px;
             padding: 16px;
-            background-color: var(--macos-card);
+            border: 1px solid var(--macos-border);
         }
 
-        .criteria-title {
+        .criterion-title {
             font-weight: 600;
             margin-bottom: 12px;
             color: var(--ls-dark);
+            font-size: 14px;
         }
 
-        .rating-options {
+        .rating-container {
             display: flex;
-            gap: 16px;
-            margin: 12px 0;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
         }
 
         .rating-option {
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .rating-option input[type="radio"] {
+            margin: 0;
+        }
+
+        .rating-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .observations {
+            margin-top: 12px;
+        }
+
+        .observations textarea {
+            min-height: 60px;
+            resize: vertical;
         }
 
         /* Dashboard */
@@ -354,6 +375,27 @@
             padding: 20px;
             border: 1px solid var(--macos-border);
             height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 15px;
+            color: var(--ls-dark);
+        }
+
+        .chart-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .no-data-message {
+            text-align: center;
+            color: var(--macos-text-secondary);
+            font-style: italic;
         }
 
         /* Tela de login */
@@ -624,7 +666,7 @@
                                 <h2 class="card-title">Avaliação de Performance</h2>
                             </div>
                             
-                            <div id="criteria-container" class="criteria-grid">
+                            <div id="criteria-container" class="criteria-container">
                                 <!-- Os critérios serão inseridos aqui via JavaScript -->
                             </div>
                             
@@ -701,23 +743,31 @@
                         
                         <div class="dashboard-grid">
                             <div class="dashboard-card">
-                                <h3 class="card-title">Desempenho por Turma</h3>
-                                <canvas id="classPerformanceChart"></canvas>
+                                <h3>Desempenho por Turma</h3>
+                                <div class="chart-container" id="classPerformanceContainer">
+                                    <canvas id="classPerformanceChart"></canvas>
+                                </div>
                             </div>
                             
                             <div class="dashboard-card">
-                                <h3 class="card-title">Desempenho por Eixo</h3>
-                                <canvas id="axisPerformanceChart"></canvas>
+                                <h3>Desempenho por Eixo</h3>
+                                <div class="chart-container" id="axisPerformanceContainer">
+                                    <canvas id="axisPerformanceChart"></canvas>
+                                </div>
                             </div>
                             
                             <div class="dashboard-card">
-                                <h3 class="card-title">Evolução Temporal</h3>
-                                <canvas id="timelineChart"></canvas>
+                                <h3>Evolução Temporal</h3>
+                                <div class="chart-container" id="timelineContainer">
+                                    <canvas id="timelineChart"></canvas>
+                                </div>
                             </div>
                             
                             <div class="dashboard-card">
-                                <h3 class="card-title">Distribuição de Avaliações</h3>
-                                <canvas id="ratingDistributionChart"></canvas>
+                                <h3>Distribuição de Avaliações</h3>
+                                <div class="chart-container" id="ratingDistributionContainer">
+                                    <canvas id="ratingDistributionChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -870,12 +920,12 @@
                     // Gerar os critérios de avaliação
                     criteriaContainer.innerHTML = '';
                     criteria[classType].forEach((criterion, index) => {
-                        const criterionCard = document.createElement('div');
-                        criterionCard.className = 'criteria-card';
+                        const criterionItem = document.createElement('div');
+                        criterionItem.className = 'criterion-item';
                         
-                        criterionCard.innerHTML = `
-                            <div class="criteria-title">${index + 1}. ${criterion}</div>
-                            <div class="rating-options">
+                        criterionItem.innerHTML = `
+                            <div class="criterion-title">${index + 1}. ${criterion}</div>
+                            <div class="rating-container">
                                 <div class="rating-option">
                                     <input type="radio" id="criterion-${index}-excellent" name="criterion-${index}" value="Excelente" required>
                                     <label for="criterion-${index}-excellent">Excelente</label>
@@ -889,13 +939,13 @@
                                     <label for="criterion-${index}-improve">A melhorar</label>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="observations">
                                 <label for="obs-${index}">Observações:</label>
-                                <textarea id="obs-${index}" rows="2"></textarea>
+                                <textarea id="obs-${index}" rows="2" placeholder="Adicione observações sobre este critério (opcional)"></textarea>
                             </div>
                         `;
                         
-                        criteriaContainer.appendChild(criterionCard);
+                        criteriaContainer.appendChild(criterionItem);
                     });
                 } else {
                     evaluationContainer.classList.add('hidden');
@@ -1090,123 +1140,27 @@
             }
             
             function initializeCharts() {
-                // Dados de exemplo para os gráficos
-                const classData = {
-                    labels: ['Foundation', 'Discovery', 'Challenge'],
-                    datasets: [{
-                        label: 'Desempenho Médio',
-                        data: [85, 78, 92],
-                        backgroundColor: [
-                            'rgba(191, 190, 144, 0.7)',
-                            'rgba(242, 154, 46, 0.7)',
-                            'rgba(191, 97, 42, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(191, 190, 144)',
-                            'rgb(242, 154, 46)',
-                            'rgb(191, 97, 42)'
-                        ],
-                        borderWidth: 1
-                    }]
-                };
+                // Verificar se há dados para exibir
+                const evaluations = JSON.parse(localStorage.getItem('classEvaluations') || '[]');
                 
-                const axisData = {
-                    labels: ['Inteligência Emocional', 'Liderança & Business', 'Inglês'],
-                    datasets: [{
-                        label: 'Desempenho por Eixo',
-                        data: [82, 88, 75],
-                        backgroundColor: [
-                            'rgba(64, 15, 19, 0.7)',
-                            'rgba(191, 190, 144, 0.7)',
-                            'rgba(115, 6, 6, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(64, 15, 19)',
-                            'rgb(191, 190, 144)',
-                            'rgb(115, 6, 6)'
-                        ],
-                        borderWidth: 1
-                    }]
-                };
+                if (evaluations.length === 0) {
+                    // Exibir mensagem "aguardando dados" em todos os gráficos
+                    document.getElementById('classPerformanceContainer').innerHTML = '<div class="no-data-message">Aguardando dados</div>';
+                    document.getElementById('axisPerformanceContainer').innerHTML = '<div class="no-data-message">Aguardando dados</div>';
+                    document.getElementById('timelineContainer').innerHTML = '<div class="no-data-message">Aguardando dados</div>';
+                    document.getElementById('ratingDistributionContainer').innerHTML = '<div class="no-data-message">Aguardando dados</div>';
+                    return;
+                }
                 
-                const timelineData = {
-                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-                    datasets: [{
-                        label: 'Desempenho Diário',
-                        data: [80, 85, 82, 88, 90],
-                        fill: false,
-                        borderColor: 'rgb(64, 15, 19)',
-                        tension: 0.1
-                    }]
-                };
+                // Processar dados reais para os gráficos
+                // (Aqui você pode adicionar a lógica para processar os dados das avaliações)
                 
-                const ratingData = {
-                    labels: ['Excelente', 'Bom', 'A melhorar'],
-                    datasets: [{
-                        label: 'Distribuição de Avaliações',
-                        data: [45, 35, 20],
-                        backgroundColor: [
-                            'rgba(64, 15, 19, 0.7)',
-                            'rgba(242, 154, 46, 0.7)',
-                            'rgba(115, 6, 6, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(64, 15, 19)',
-                            'rgb(242, 154, 46)',
-                            'rgb(115, 6, 6)'
-                        ],
-                        borderWidth: 1
-                    }]
-                };
-                
-                // Renderizar gráficos
-                new Chart(document.getElementById('classPerformanceChart'), {
-                    type: 'bar',
-                    data: classData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
-                    }
-                });
-                
-                new Chart(document.getElementById('axisPerformanceChart'), {
-                    type: 'pie',
-                    data: axisData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-                
-                new Chart(document.getElementById('timelineChart'), {
-                    type: 'line',
-                    data: timelineData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
-                    }
-                });
-                
-                new Chart(document.getElementById('ratingDistributionChart'), {
-                    type: 'doughnut',
-                    data: ratingData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
+                // Por enquanto, vamos manter a mensagem de aguardando dados
+                // pois o processamento dos dados reais é complexo e específico
+                document.getElementById('classPerformanceContainer').innerHTML = '<div class="no-data-message">Aguardando dados de avaliações</div>';
+                document.getElementById('axisPerformanceContainer').innerHTML = '<div class="no-data-message">Aguardando dados de avaliações</div>';
+                document.getElementById('timelineContainer').innerHTML = '<div class="no-data-message">Aguardando dados de avaliações</div>';
+                document.getElementById('ratingDistributionContainer').innerHTML = '<div class="no-data-message">Aguardando dados de avaliações</div>';
             }
             
             // Função para salvar avaliação no localStorage
@@ -1317,7 +1271,7 @@
                 const mondayStr = formatDate(monday);
                 const sunday = new Date(monday);
                 sunday.setDate(monday.getDate() + 6);
-                const sundayStr = formatDate(sunday);
+                sundayStr = formatDate(sunday);
                 
                 // Filtrar avaliações da semana atual
                 const weeklyEvaluations = evaluations.filter(eval => {
